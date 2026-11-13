@@ -8,1310 +8,600 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-    --bg: #080b12;
-    --panel: #101725;
-    --card: #151f30;
-    --blue: #168cff;
-    --blue2: #0066ff;
-    --text: #f4f7ff;
-    --muted: #8d9bb2;
-    --border: #26354b;
-    --danger: #ff5757;
+:root{
+  --bg:#080b12;
+  --panel:#101725;
+  --panel2:#151f30;
+  --blue:#168cff;
+  --blue2:#0066cc;
+  --text:#f4f7ff;
+  --muted:#91a0b7;
+  --border:#26364c;
+  --danger:#ff6262;
+  --success:#36d69a;
 }
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial, sans-serif;min-height:100vh;
 }
-
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: Arial, sans-serif;
-    min-height: 100vh;
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.auth-wrap{
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:center;padding:20px;
 }
-
-button, input, textarea {
-    font: inherit;
+.auth-card{
+  width:100%;max-width:420px;background:var(--panel);
+  border:1px solid var(--border);border-radius:18px;
+  padding:28px;box-shadow:0 15px 50px #0008;
 }
-
-button {
-    cursor: pointer;
+.logo{
+  font-size:29px;font-weight:800;letter-spacing:1px;
+  color:var(--blue);text-align:center;margin-bottom:8px;
 }
-
-.hidden {
-    display: none !important;
+.subtitle{text-align:center;color:var(--muted);margin-bottom:25px}
+h2{margin:0 0 18px}
+input,textarea{
+  width:100%;padding:14px;margin:7px 0 14px;
+  color:var(--text);background:#080e19;
+  border:1px solid var(--border);border-radius:10px;
+  outline:none;
 }
-
-.brand {
-    color: var(--blue);
-    font-size: 27px;
-    font-weight: 800;
-    letter-spacing: 1px;
+input:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:90px;resize:vertical}
+.primary{
+  width:100%;padding:14px;border:0;border-radius:10px;
+  color:white;background:var(--blue);font-weight:bold;
 }
-
-.brand span {
-    color: white;
+.primary:hover{background:var(--blue2)}
+.link{
+  background:none;border:0;color:#55aaff;padding:8px 0;
 }
-
-.auth-page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+.message{
+  padding:11px;border-radius:9px;margin:12px 0;
+  font-size:14px;line-height:1.5;
 }
-
-.auth-box {
-    width: 100%;
-    max-width: 420px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 30px;
-    border-radius: 20px;
+.error{background:#401c26;color:#ffb1b1}
+.success{background:#12372d;color:#8af0c5}
+.auth-links{
+  display:flex;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;margin-top:12px;
 }
-
-.auth-header {
-    text-align: center;
-    margin-bottom: 28px;
+header{
+  height:65px;background:var(--panel);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;position:sticky;top:0;z-index:5;
 }
-
-.auth-header p {
-    color: var(--muted);
-    margin-top: 10px;
-    font-size: 14px;
+header .logo{margin:0;font-size:22px}
+.layout{display:flex;min-height:calc(100vh - 65px)}
+aside{
+  width:220px;background:var(--panel);
+  border-right:1px solid var(--border);padding:18px 12px;
 }
-
-.auth-box h2 {
-    margin-bottom: 20px;
+.navbtn{
+  width:100%;text-align:left;padding:13px;
+  border:0;border-radius:9px;background:transparent;
+  color:var(--muted);margin-bottom:5px;
 }
-
-.field {
-    margin-bottom: 16px;
+.navbtn.active,.navbtn:hover{
+  background:#122b48;color:white;
 }
-
-.field label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 13px;
-    color: var(--muted);
+main{flex:1;padding:25px;min-width:0}
+.page{max-width:900px;margin:auto}
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:20px;border-radius:14px;margin:15px 0;
 }
-
-.field input {
-    width: 100%;
-    padding: 14px;
-    background: #080e19;
-    border: 1px solid var(--border);
-    color: white;
-    border-radius: 10px;
-    outline: none;
+.item{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:13px 0;border-bottom:1px solid var(--border);
 }
-
-.field input:focus {
-    border-color: var(--blue);
+.item:last-child{border-bottom:0}
+.item small{color:var(--muted)}
+.smallbtn{
+  padding:8px 12px;background:var(--panel2);
+  color:var(--text);border:1px solid var(--border);
+  border-radius:8px;
 }
-
-.primary-btn {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(100deg, #087cff, #0055d9);
-    color: white;
-    font-weight: bold;
-    margin-top: 8px;
-}
-
-.primary-btn:disabled {
-    opacity: .5;
-}
-
-.auth-links {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.auth-links button {
-    background: none;
-    border: none;
-    color: var(--blue);
-    font-size: 13px;
-}
-
-.notice {
-    margin-top: 15px;
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
-}
-
-.message {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.5;
-    display: none;
-}
-
-.message.success {
-    display: block;
-    background: #103326;
-    color: #72e5ae;
-}
-
-.message.error {
-    display: block;
-    background: #391b24;
-    color: #ff9a9a;
-}
-
-/* DASHBOARD */
-
-#dashboard {
-    min-height: 100vh;
-}
-
-.topbar {
-    height: 65px;
-    padding: 0 22px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--panel);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.top-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.top-actions span {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.logout-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    padding: 9px 13px;
-    border-radius: 8px;
-    color: white;
-}
-
-.layout {
-    display: flex;
-    min-height: calc(100vh - 65px);
-}
-
-.sidebar {
-    width: 235px;
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    padding: 20px 12px;
-    flex-shrink: 0;
-}
-
-.nav-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: transparent;
-    color: var(--muted);
-    border: none;
-    padding: 14px;
-    margin-bottom: 6px;
-    border-radius: 9px;
-}
-
-.nav-btn.active,
-.nav-btn:hover {
-    color: white;
-    background: #122d4d;
-}
-
-.main {
-    flex: 1;
-    padding: 28px;
-    min-width: 0;
-}
-
-.page-title {
-    font-size: 25px;
-    margin-bottom: 8px;
-}
-
-.subtitle {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 25px;
-}
-
-.panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 18px;
-}
-
-.panel h3 {
-    margin-bottom: 15px;
-}
-
-.form-input {
-    width: 100%;
-    padding: 13px;
-    margin-bottom: 12px;
-    background: #080e19;
-    color: white;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    outline: none;
-}
-
-.form-input:focus {
-    border-color: var(--blue);
-}
-
-.item {
-    padding: 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-top: 10px;
-    overflow-wrap: anywhere;
-}
-
-.item small {
-    display: block;
-    color: var(--muted);
-    margin-top: 7px;
-}
-
-.empty {
-    color: var(--muted);
-    padding: 15px 0;
-    font-size: 14px;
-}
-
-.danger-btn {
-    background: transparent;
-    color: var(--danger);
-    border: 1px solid var(--danger);
-    padding: 7px 10px;
-    border-radius: 7px;
-    margin-top: 10px;
-}
-
-@media(max-width:700px) {
-    .layout {
-        display: block;
-    }
-
-    .sidebar {
-        width: 100%;
-        display: flex;
-        overflow-x: auto;
-        padding: 8px;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .nav-btn {
-        white-space: nowrap;
-        width: auto;
-        margin: 0 4px;
-        padding: 11px;
-    }
-
-    .main {
-        padding: 18px 13px;
-    }
-
-    .topbar {
-        padding: 0 12px;
-    }
-
-    .top-actions span {
-        display: none;
-    }
-
-    .auth-box {
-        padding: 23px;
-    }
+.danger{color:#ff8585}
+.muted{color:var(--muted)}
+#dashboardMessage{max-width:900px;margin:0 auto}
+@media(max-width:650px){
+  header{padding:0 13px}
+  .layout{display:block}
+  aside{
+    width:100%;display:flex;overflow-x:auto;
+    padding:8px;border-right:0;border-bottom:1px solid var(--border);
+  }
+  .navbtn{
+    width:auto;white-space:nowrap;margin:0 4px;
+    padding:11px;
+  }
+  main{padding:15px}
+  .auth-card{padding:22px}
 }
 </style>
 </head>
 
 <body>
 
-<!-- AUTHENTICATION -->
+<section id="authPage" class="auth-wrap">
+  <div class="auth-card">
+    <div class="logo">STEVIE AI</div>
+    <div class="subtitle">Your intelligent creative assistant.</div>
 
-<section id="authPage" class="auth-page">
-<div class="auth-box">
+    <div id="authMessage"></div>
 
-    <div class="auth-header">
-        <div class="brand">STEVIE<span> AI</span></div>
-        <p>Your intelligent creative assistant.</p>
-    </div>
+    <form id="loginForm">
+      <h2>Welcome Back</h2>
+      <input id="loginEmail" type="email" placeholder="Email address" required>
+      <input id="loginPassword" type="password" placeholder="Password" required>
+      <button class="primary" type="submit">Login</button>
+      <div class="auth-links">
+        <button class="link" type="button" onclick="showForm('signupForm')">Create Account</button>
+        <button class="link" type="button" onclick="showForm('forgotForm')">Forgot Password?</button>
+      </div>
+    </form>
 
-    <!-- LOGIN -->
-    <div id="loginForm">
-        <h2>Welcome Back</h2>
+    <form id="signupForm" class="hidden">
+      <h2>Create Account</h2>
+      <input id="signupName" placeholder="Your name" required>
+      <input id="signupEmail" type="email" placeholder="Email address" required>
+      <input id="signupPassword" type="password" minlength="6" placeholder="Password (at least 6 characters)" required>
+      <button class="primary" type="submit">Sign Up</button>
+      <button class="link" type="button" onclick="showForm('loginForm')">Back to Login</button>
+    </form>
 
-        <div class="field">
-            <label>Email Address</label>
-            <input id="loginEmail" type="email"
-                   placeholder="Enter your email">
-        </div>
+    <form id="forgotForm" class="hidden">
+      <h2>Reset Password</h2>
+      <p class="muted">Enter your email to receive a password reset link.</p>
+      <input id="resetEmail" type="email" placeholder="Email address" required>
+      <button class="primary" type="submit">Send Reset Link</button>
+      <button class="link" type="button" onclick="showForm('loginForm')">Back to Login</button>
+    </form>
 
-        <div class="field">
-            <label>Password</label>
-            <input id="loginPassword" type="password"
-                   placeholder="Enter your password">
-        </div>
-
-        <button class="primary-btn" onclick="login()">
-            Login
-        </button>
-
-        <div class="auth-links">
-            <button onclick="showForm('signupForm')">
-                Create Account
-            </button>
-
-            <button onclick="showForm('forgotForm')">
-                Forgot Password?
-            </button>
-        </div>
-    </div>
-
-    <!-- SIGNUP -->
-    <div id="signupForm" class="hidden">
-        <h2>Create Account</h2>
-
-        <div class="field">
-            <label>Full Name</label>
-            <input id="signupName" type="text"
-                   placeholder="Your name">
-        </div>
-
-        <div class="field">
-            <label>Email Address</label>
-            <input id="signupEmail" type="email"
-                   placeholder="Your email">
-        </div>
-
-        <div class="field">
-            <label>Password</label>
-            <input id="signupPassword" type="password"
-                   placeholder="At least 8 characters">
-        </div>
-
-        <button class="primary-btn" onclick="signup()">
-            Create Account
-        </button>
-
-        <div class="auth-links">
-            <button onclick="showForm('loginForm')">
-                Already have an account? Login
-            </button>
-        </div>
-    </div>
-
-    <!-- FORGOT PASSWORD -->
-    <div id="forgotForm" class="hidden">
-        <h2>Reset Password</h2>
-
-        <div class="field">
-            <label>Email Address</label>
-            <input id="resetEmail" type="email"
-                   placeholder="Your registered email">
-        </div>
-
-        <button class="primary-btn" onclick="sendResetEmail()">
-            Send Reset Link
-        </button>
-
-        <div class="auth-links">
-            <button onclick="showForm('loginForm')">
-                Back to Login
-            </button>
-        </div>
-    </div>
-
-    <!-- UPDATE PASSWORD -->
-    <div id="updatePasswordForm" class="hidden">
-        <h2>Choose New Password</h2>
-
-        <div class="field">
-            <label>New Password</label>
-            <input id="newPassword" type="password"
-                   placeholder="New password">
-        </div>
-
-        <button class="primary-btn" onclick="updatePassword()">
-            Update Password
-        </button>
-    </div>
-
-    <div id="authMessage" class="message"></div>
-
-    <p class="notice">
-        By continuing, you agree to use STEVIE AI responsibly.
-    </p>
-
-</div>
+    <form id="updatePasswordForm" class="hidden">
+      <h2>Choose New Password</h2>
+      <input id="newPassword" type="password" minlength="6" placeholder="New password" required>
+      <button class="primary" type="submit">Update Password</button>
+    </form>
+  </div>
 </section>
-
-
-<!-- DASHBOARD -->
 
 <section id="dashboard" class="hidden">
+  <header>
+    <div class="logo">STEVIE AI</div>
+    <button class="smallbtn" onclick="logout()">Logout</button>
+  </header>
 
-    <header class="topbar">
-        <div class="brand">STEVIE<span> AI</span></div>
+  <div class="layout">
+    <aside>
+      <button class="navbtn active" onclick="openPage('homePage',this)">Home</button>
+      <button class="navbtn" onclick="openPage('historyPage',this)">Chat History</button>
+      <button class="navbtn" onclick="openPage('projectsPage',this)">Projects</button>
+      <button class="navbtn" onclick="openPage('memoryPage',this)">Memory</button>
+      <button class="navbtn" onclick="openPage('profilePage',this)">Profile</button>
+    </aside>
 
-        <div class="top-actions">
-            <span id="userEmail"></span>
-            <button class="logout-btn" onclick="logout()">
-                Logout
-            </button>
+    <main>
+      <div id="dashboardMessage"></div>
+
+      <section id="homePage" class="page">
+        <div class="card">
+          <h2>Welcome to STEVIE AI</h2>
+          <p class="muted">Your space for creativity, ideas and technology.</p>
+          <p id="welcomeName"></p>
+          <p id="welcomeEmail" class="muted"></p>
         </div>
-    </header>
+        <div class="card">
+          <h3>Your Workspace</h3>
+          <p class="muted">Your account dashboard is ready.</p>
+          <p>Chat, projects and memory management will be available here as their features are connected.</p>
+        </div>
+      </section>
 
-    <div class="layout">
+      <section id="historyPage" class="page hidden">
+        <h2>Chat History</h2>
+        <div class="card">
+          <input id="chatTitle" placeholder="Enter chat title">
+          <button class="primary" onclick="createChat()">Create Chat</button>
+          <div id="chatList"></div>
+        </div>
+      </section>
 
-        <aside class="sidebar">
-            <button class="nav-btn active"
-                onclick="openPage('home',this)">Home</button>
+      <section id="projectsPage" class="page hidden">
+        <h2>Projects</h2>
+        <div class="card">
+          <input id="projectName" placeholder="Project name">
+          <textarea id="projectDescription" placeholder="Project description"></textarea>
+          <button class="primary" onclick="createProject()">Save Project</button>
+          <div id="projectList"></div>
+        </div>
+      </section>
 
-            <button class="nav-btn"
-                onclick="openPage('chats',this)">Chat History</button>
+      <section id="memoryPage" class="page hidden">
+        <h2>Memory</h2>
+        <div class="card">
+          <textarea id="memoryContent" placeholder="Write something you want to save..."></textarea>
+          <button class="primary" onclick="createMemory()">Save Memory</button>
+          <div id="memoryList"></div>
+        </div>
+      </section>
 
-            <button class="nav-btn"
-                onclick="openPage('projects',this)">Projects</button>
-
-            <button class="nav-btn"
-                onclick="openPage('memory',this)">Memory</button>
-
-            <button class="nav-btn"
-                onclick="openPage('profile',this)">Profile</button>
-        </aside>
-
-        <main class="main">
-
-            <!-- HOME -->
-            <div id="homePage">
-                <h1 class="page-title">Welcome to STEVIE AI</h1>
-                <p class="subtitle">
-                    Your personal creative workspace.
-                </p>
-
-                <div class="panel">
-                    <h3>Your Account</h3>
-                    <p id="welcomeName">Loading profile...</p>
-                    <p class="notice" id="welcomeEmail"></p>
-                </div>
-
-                <div class="panel">
-                    <h3>Workspace</h3>
-                    <p class="subtitle">
-                        Your account is connected to Supabase.
-                        Your projects, memories and chat records
-                        are stored separately under your account.
-                    </p>
-                </div>
-            </div>
-
-            <!-- CHATS -->
-            <div id="chatsPage" class="hidden">
-                <h1 class="page-title">Chat History</h1>
-                <p class="subtitle">Your saved conversations.</p>
-
-                <div class="panel">
-                    <input id="chatTitle" class="form-input"
-                        placeholder="Conversation title">
-
-                    <button class="primary-btn"
-                        onclick="createChat()">
-                        New Conversation
-                    </button>
-
-                    <div id="chatList"></div>
-                </div>
-            </div>
-
-            <!-- PROJECTS -->
-            <div id="projectsPage" class="hidden">
-                <h1 class="page-title">Projects</h1>
-                <p class="subtitle">Manage your creative work.</p>
-
-                <div class="panel">
-                    <input id="projectName" class="form-input"
-                        placeholder="Project name">
-
-                    <textarea id="projectDescription"
-                        class="form-input"
-                        placeholder="Project description"
-                        rows="4"></textarea>
-
-                    <button class="primary-btn"
-                        onclick="createProject()">
-                        Save Project
-                    </button>
-
-                    <div id="projectList"></div>
-                </div>
-            </div>
-
-            <!-- MEMORY -->
-            <div id="memoryPage" class="hidden">
-                <h1 class="page-title">Memory</h1>
-                <p class="subtitle">
-                    Information you choose to save.
-                </p>
-
-                <div class="panel">
-                    <textarea id="memoryContent"
-                        class="form-input"
-                        rows="4"
-                        placeholder="Write something to remember..."></textarea>
-
-                    <button class="primary-btn"
-                        onclick="saveMemory()">
-                        Save Memory
-                    </button>
-
-                    <div id="memoryList"></div>
-                </div>
-            </div>
-
-            <!-- PROFILE -->
-            <div id="profilePage" class="hidden">
-                <h1 class="page-title">Your Profile</h1>
-                <p class="subtitle">Manage your account details.</p>
-
-                <div class="panel">
-                    <h3>Personal Information</h3>
-
-                    <label class="notice">Display Name</label>
-                    <input id="profileName"
-                        class="form-input"
-                        placeholder="Your name">
-
-                    <label class="notice">Email</label>
-                    <input id="profileEmail"
-                        class="form-input"
-                        disabled>
-
-                    <button class="primary-btn"
-                        onclick="saveProfile()">
-                        Save Changes
-                    </button>
-                </div>
-            </div>
-
-            <div id="dashboardMessage" class="message"></div>
-
-        </main>
-    </div>
+      <section id="profilePage" class="page hidden">
+        <h2>Profile</h2>
+        <div class="card">
+          <label>Display Name</label>
+          <input id="profileName" placeholder="Your name">
+          <label>Email</label>
+          <input id="profileEmail" disabled>
+          <button class="primary" onclick="saveProfile()">Save Profile</button>
+        </div>
+      </section>
+    </main>
+  </div>
 </section>
 
-
 <script>
+/* STEVIE AI CONFIGURATION */
+const SUPABASE_URL = "https://zaqijuxyibqkdvnxruvh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_VRQRTg0NhvhYFacvboQdpw_npqAmh-0";
 
-// ========================================
-// SUPABASE CONFIGURATION
-// ========================================
+/* IMPORTANT: GitHub Pages repository path must be included. */
+const SITE_URL = "https://ishmaelnelson213-sys.github.io/stevie-ai/";
 
-const SUPABASE_URL =
-"https://zaqijuxyibqkdvnxruvh.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_VRQRTg0NhvhYFacvboQdpw_npqAmh-0";
-
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
 
-
-// ========================================
-// UI HELPERS
-// ========================================
-
-function showMessage(id, text, type) {
-    const box = document.getElementById(id);
-
-    box.textContent = text;
-    box.className = "message " + type;
+function showMessage(message,type="success",target="authMessage"){
+  const el=document.getElementById(target);
+  el.innerHTML="";
+  const box=document.createElement("div");
+  box.className="message "+(type==="error"?"error":"success");
+  box.textContent=message;
+  el.appendChild(box);
 }
-
-function clearMessage(id) {
-    const box = document.getElementById(id);
-    box.textContent = "";
-    box.className = "message";
+function clearMessage(target="authMessage"){
+  document.getElementById(target).innerHTML="";
 }
-
-function showForm(formId) {
-    document.querySelectorAll("#authPage > .auth-box > div")
-        .forEach(el => {
-            if (
-                el.id === "loginForm" ||
-                el.id === "signupForm" ||
-                el.id === "forgotForm" ||
-                el.id === "updatePasswordForm"
-            ) {
-                el.classList.add("hidden");
-            }
-        });
-
-    document.getElementById(formId).classList.remove("hidden");
-    clearMessage("authMessage");
+function showForm(id){
+  ["loginForm","signupForm","forgotForm","updatePasswordForm"]
+    .forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  clearMessage();
 }
-
-function showDashboard() {
-    document.getElementById("authPage").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
+function openPage(id,button){
+  document.querySelectorAll("main .page").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
+  if(button)button.classList.add("active");
+  clearMessage("dashboardMessage");
 }
-
-function showAuthentication() {
-    document.getElementById("dashboard").classList.add("hidden");
-    document.getElementById("authPage").classList.remove("hidden");
-    showForm("loginForm");
+function setBusy(form,busy){
+  const button=form.querySelector('button[type="submit"]');
+  if(button){
+    button.disabled=busy;
+    button.textContent=busy?"Please wait...":button.dataset.original;
+  }
 }
-
-function openPage(page, button) {
-    const pages = [
-        "homePage",
-        "chatsPage",
-        "projectsPage",
-        "memoryPage",
-        "profilePage"
-    ];
-
-    pages.forEach(id => {
-        document.getElementById(id).classList.add("hidden");
-    });
-
-    document.getElementById(page + "Page").classList.remove("hidden");
-
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-        btn.classList.remove("active");
-    });
-
-    button.classList.add("active");
-
-    if (page === "chats") loadChats();
-    if (page === "projects") loadProjects();
-    if (page === "memory") loadMemories();
-    if (page === "profile") loadProfile();
-}
-
-
-// ========================================
-// SIGN UP
-// ========================================
-
-async function signup() {
-    clearMessage("authMessage");
-
-    const name = document.getElementById("signupName").value.trim();
-    const email = document.getElementById("signupEmail").value.trim();
-    const password = document.getElementById("signupPassword").value;
-
-    if (!name || !email || password.length < 8) {
-        showMessage(
-            "authMessage",
-            "Enter your name, a valid email and a password of at least 8 characters.",
-            "error"
-        );
-        return;
-    }
-
-    const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                display_name: name
-            },
-            emailRedirectTo: window.location.origin
-        }
-    });
-
-    if (error) {
-        showMessage("authMessage", error.message, "error");
-        return;
-    }
-
-    if (data.session) {
-        await enterDashboard(data.user);
-    } else {
-        showMessage(
-            "authMessage",
-            "Account created! Check your email and confirm your address before logging in.",
-            "success"
-        );
-        showForm("loginForm");
-    }
-}
-
-
-// ========================================
-// LOGIN
-// ========================================
-
-async function login() {
-    clearMessage("authMessage");
-
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-
-    if (!email || !password) {
-        showMessage(
-            "authMessage",
-            "Enter your email and password.",
-            "error"
-        );
-        return;
-    }
-
-    const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-        });
-
-    if (error) {
-        showMessage("authMessage", error.message, "error");
-        return;
-    }
-
-    await enterDashboard(data.user);
-}
-
-
-// ========================================
-// FORGOT PASSWORD
-// ========================================
-
-async function sendResetEmail() {
-    const email = document.getElementById("resetEmail").value.trim();
-
-    if (!email) {
-        showMessage("authMessage", "Enter your email.", "error");
-        return;
-    }
-
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(
-        email,
-        {
-            redirectTo: window.location.origin
-        }
-    );
-
-    if (error) {
-        showMessage("authMessage", error.message, "error");
-        return;
-    }
-
-    showMessage(
-        "authMessage",
-        "If the account exists, a password reset email will be sent.",
-        "success"
-    );
-}
-
-
-// ========================================
-// UPDATE PASSWORD
-// ========================================
-
-async function updatePassword() {
-    const password = document.getElementById("newPassword").value;
-
-    if (password.length < 8) {
-        showMessage(
-            "authMessage",
-            "Password must have at least 8 characters.",
-            "error"
-        );
-        return;
-    }
-
-    const { error } = await supabaseClient.auth.updateUser({
-        password
-    });
-
-    if (error) {
-        showMessage("authMessage", error.message, "error");
-        return;
-    }
-
-    showMessage(
-        "authMessage",
-        "Password updated successfully.",
-        "success"
-    );
-
-    setTimeout(() => showForm("loginForm"), 1500);
-}
-
-
-// ========================================
-// LOGOUT
-// ========================================
-
-async function logout() {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-        alert("Unable to log out. Please try again.");
-        return;
-    }
-
-    currentUser = null;
-    showAuthentication();
-}
-
-
-// ========================================
-// AUTH SESSION
-// ========================================
-
-async function enterDashboard(user) {
-    currentUser = user;
-
-    document.getElementById("userEmail").textContent = user.email;
-    document.getElementById("welcomeEmail").textContent = user.email;
-
-    showDashboard();
-
-    await loadProfile();
-}
-
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (event === "PASSWORD_RECOVERY") {
-        showAuthentication();
-        showForm("updatePasswordForm");
-        return;
-    }
-
-    if (session?.user) {
-        currentUser = session.user;
-        showDashboard();
-
-        setTimeout(() => loadProfile(), 0);
-    } else {
-        currentUser = null;
-        showAuthentication();
-    }
+document.querySelectorAll("form").forEach(form=>{
+  const button=form.querySelector('button[type="submit"]');
+  if(button)button.dataset.original=button.textContent;
 });
 
+async function signup(event){
+  event.preventDefault();
+  const form=event.target;
+  setBusy(form,true);
+  const name=document.getElementById("signupName").value.trim();
+  const email=document.getElementById("signupEmail").value.trim();
+  const password=document.getElementById("signupPassword").value;
 
-// ========================================
-// PROFILE
-// ========================================
-
-async function loadProfile() {
-    if (!currentUser) return;
-
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not load your profile.",
-            "error"
-        );
-        return;
+  const {data,error}=await db.auth.signUp({
+    email,password,
+    options:{
+      data:{display_name:name},
+      emailRedirectTo:SITE_URL
     }
+  });
 
-    const name = data?.display_name || "";
+  setBusy(form,false);
+  if(error)return showMessage(error.message,"error");
 
-    document.getElementById("profileName").value = name;
-    document.getElementById("profileEmail").value = currentUser.email;
+  if(data.session){
+    showMessage("Your account has been created.","success");
+  }else{
+    showMessage("Registration received. Check your email and verify your account before logging in.","success");
+  }
+}
+document.getElementById("signupForm").addEventListener("submit",signup);
 
-    document.getElementById("welcomeName").textContent =
-        name ? "Welcome, " + name : "Welcome to your workspace";
+async function login(event){
+  event.preventDefault();
+  const form=event.target;
+  setBusy(form,true);
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+
+  const {error}=await db.auth.signInWithPassword({email,password});
+  setBusy(form,false);
+
+  if(error)return showMessage("Login failed. Check your email and password. If you have not verified your email, check your inbox.","error");
+}
+document.getElementById("loginForm").addEventListener("submit",login);
+
+async function sendResetEmail(event){
+  event.preventDefault();
+  const form=event.target;
+  setBusy(form,true);
+  const email=document.getElementById("resetEmail").value.trim();
+
+  const {error}=await db.auth.resetPasswordForEmail(email,{
+    redirectTo:SITE_URL
+  });
+
+  setBusy(form,false);
+  if(error)return showMessage(error.message,"error");
+  showMessage("If the email is registered, a password reset link will be sent. Check your inbox and Spam folder.","success");
+}
+document.getElementById("forgotForm").addEventListener("submit",sendResetEmail);
+
+async function updatePassword(event){
+  event.preventDefault();
+  const form=event.target;
+  setBusy(form,true);
+  const password=document.getElementById("newPassword").value;
+
+  const {error}=await db.auth.updateUser({password});
+  setBusy(form,false);
+
+  if(error)return showMessage(error.message,"error");
+  showMessage("Password updated successfully. You can now use your new password.","success");
+  setTimeout(()=>showForm("loginForm"),1800);
+}
+document.getElementById("updatePasswordForm").addEventListener("submit",updatePassword);
+
+async function logout(){
+  const {error}=await db.auth.signOut();
+  if(error)showMessage(error.message,"error","dashboardMessage");
 }
 
-async function saveProfile() {
-    if (!currentUser) return;
-
-    const name = document.getElementById("profileName").value.trim();
-
-    const { error } = await supabaseClient
-        .from("profiles")
-        .upsert({
-            id: currentUser.id,
-            display_name: name
-        });
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not save your profile.",
-            "error"
-        );
-        return;
-    }
-
-    await supabaseClient.auth.updateUser({
-        data: { display_name: name }
-    });
-
-    showMessage(
-        "dashboardMessage",
-        "Profile updated successfully.",
-        "success"
-    );
-
-    loadProfile();
+function showDashboard(user){
+  currentUser=user;
+  document.getElementById("authPage").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  document.getElementById("welcomeEmail").textContent=user.email||"";
+  document.getElementById("profileEmail").value=user.email||"";
+  loadProfile();
+  loadChats();
+  loadProjects();
+  loadMemories();
 }
 
-
-// ========================================
-// CHAT HISTORY
-// ========================================
-
-async function createChat() {
-    if (!currentUser) return;
-
-    const title =
-        document.getElementById("chatTitle").value.trim() ||
-        "New Chat";
-
-    const { error } = await supabaseClient
-        .from("chats")
-        .insert({
-            user_id: currentUser.id,
-            title
-        });
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not create conversation.",
-            "error"
-        );
-        return;
-    }
-
-    document.getElementById("chatTitle").value = "";
-
-    loadChats();
+function showAuthentication(){
+  currentUser=null;
+  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("authPage").classList.remove("hidden");
+  showForm("loginForm");
 }
 
-async function loadChats() {
-    if (!currentUser) return;
-
-    const list = document.getElementById("chatList");
-    list.innerHTML = "<p class='empty'>Loading conversations...</p>";
-
-    const { data, error } = await supabaseClient
-        .from("chats")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .order("created_at", { ascending: false });
-
-    if (error) {
-        list.textContent = "Could not load conversations.";
-        return;
-    }
-
-    list.innerHTML = "";
-
-    if (!data.length) {
-        list.innerHTML = "<p class='empty'>No conversations yet.</p>";
-        return;
-    }
-
-    data.forEach(chat => {
-        const item = document.createElement("div");
-        item.className = "item";
-
-        const title = document.createElement("strong");
-        title.textContent = chat.title;
-
-        const date = document.createElement("small");
-        date.textContent = new Date(chat.created_at).toLocaleString();
-
-        const remove = document.createElement("button");
-        remove.className = "danger-btn";
-        remove.textContent = "Delete";
-        remove.onclick = () => deleteChat(chat.id);
-
-        item.append(title, date, remove);
-        list.appendChild(item);
-    });
-}
-
-async function deleteChat(id) {
-    if (!confirm("Delete this conversation?")) return;
-
-    const { error } = await supabaseClient
-        .from("chats")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", currentUser.id);
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not delete conversation.",
-            "error"
-        );
-        return;
-    }
-
-    loadChats();
-}
-
-
-// ========================================
-// PROJECTS
-// ========================================
-
-async function createProject() {
-    if (!currentUser) return;
-
-    const name = document.getElementById("projectName").value.trim();
-    const description =
-        document.getElementById("projectDescription").value.trim();
-
-    if (!name) {
-        showMessage(
-            "dashboardMessage",
-            "Enter a project name.",
-            "error"
-        );
-        return;
-    }
-
-    const { error } = await supabaseClient
-        .from("projects")
-        .insert({
-            user_id: currentUser.id,
-            name,
-            description
-        });
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not save project.",
-            "error"
-        );
-        return;
-    }
-
-    document.getElementById("projectName").value = "";
-    document.getElementById("projectDescription").value = "";
-
-    loadProjects();
-}
-
-async function loadProjects() {
-    if (!currentUser) return;
-
-    const list = document.getElementById("projectList");
-    list.innerHTML = "<p class='empty'>Loading projects...</p>";
-
-    const { data, error } = await supabaseClient
-        .from("projects")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .order("created_at", { ascending: false });
-
-    if (error) {
-        list.textContent = "Could not load projects.";
-        return;
-    }
-
-    list.innerHTML = "";
-
-    if (!data.length) {
-        list.innerHTML = "<p class='empty'>No projects saved.</p>";
-        return;
-    }
-
-    data.forEach(project => {
-        const item = document.createElement("div");
-        item.className = "item";
-
-        const title = document.createElement("strong");
-        title.textContent = project.name;
-
-        const desc = document.createElement("small");
-        desc.textContent = project.description || "No description";
-
-        const remove = document.createElement("button");
-        remove.className = "danger-btn";
-        remove.textContent = "Delete";
-        remove.onclick = () => deleteProject(project.id);
-
-        item.append(title, desc, remove);
-        list.appendChild(item);
-    });
-}
-
-async function deleteProject(id) {
-    if (!confirm("Delete this project?")) return;
-
-    const { error } = await supabaseClient
-        .from("projects")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", currentUser.id);
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not delete project.",
-            "error"
-        );
-        return;
-    }
-
-    loadProjects();
-}
-
-
-// ========================================
-// MEMORY
-// ========================================
-
-async function saveMemory() {
-    if (!currentUser) return;
-
-    const content =
-        document.getElementById("memoryContent").value.trim();
-
-    if (!content) {
-        showMessage(
-            "dashboardMessage",
-            "Write something before saving.",
-            "error"
-        );
-        return;
-    }
-
-    const { error } = await supabaseClient
-        .from("memories")
-        .insert({
-            user_id: currentUser.id,
-            content
-        });
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not save memory.",
-            "error"
-        );
-        return;
-    }
-
-    document.getElementById("memoryContent").value = "";
-
-    loadMemories();
-}
-
-async function loadMemories() {
-    if (!currentUser) return;
-
-    const list = document.getElementById("memoryList");
-    list.innerHTML = "<p class='empty'>Loading memories...</p>";
-
-    const { data, error } = await supabaseClient
-        .from("memories")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .order("created_at", { ascending: false });
-
-    if (error) {
-        list.textContent = "Could not load memories.";
-        return;
-    }
-
-    list.innerHTML = "";
-
-    if (!data.length) {
-        list.innerHTML = "<p class='empty'>No memories saved.</p>";
-        return;
-    }
-
-    data.forEach(memory => {
-        const item = document.createElement("div");
-        item.className = "item";
-
-        const content = document.createElement("p");
-        content.textContent = memory.content;
-
-        const remove = document.createElement("button");
-        remove.className = "danger-btn";
-        remove.textContent = "Delete";
-        remove.onclick = () => deleteMemory(memory.id);
-
-        item.append(content, remove);
-        list.appendChild(item);
-    });
-}
-
-async function deleteMemory(id) {
-    if (!confirm("Delete this memory?")) return;
-
-    const { error } = await supabaseClient
-        .from("memories")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", currentUser.id);
-
-    if (error) {
-        showMessage(
-            "dashboardMessage",
-            "Could not delete memory.",
-            "error"
-        );
-        return;
-    }
-
-    loadMemories();
-}
-
-
-// ========================================
-// PASSWORD RECOVERY ROUTING
-// ========================================
-
-if (
-    window.location.hash.includes("type=recovery") ||
-    new URLSearchParams(window.location.search).get("type") === "recovery"
-) {
+/* AUTHENTICATION AND EMAIL CALLBACKS */
+async function initialize(){
+  const hash=window.location.hash;
+  const params=new URLSearchParams(hash.replace(/^#/,""));
+  const type=params.get("type");
+  const accessToken=params.get("access_token");
+  const refreshToken=params.get("refresh_token");
+  const authError=params.get("error_description");
+
+  if(authError){
     showAuthentication();
-    showForm("updatePasswordForm");
+    showMessage(decodeURIComponent(authError.replace(/\+/g," ")),"error");
+    history.replaceState(null,"",SITE_URL);
+    return;
+  }
+
+  if(accessToken && refreshToken){
+    const {error}=await db.auth.setSession({
+      access_token:accessToken,
+      refresh_token:refreshToken
+    });
+    if(error){
+      showAuthentication();
+      showMessage("We could not verify this email link. Request a fresh link and try again.","error");
+      return;
+    }
+    history.replaceState(null,"",SITE_URL);
+    if(type==="recovery"){
+      showAuthentication();
+      showForm("updatePasswordForm");
+      return;
+    }
+  }
+
+  const {data,error}=await db.auth.getSession();
+  if(error){
+    showAuthentication();
+    return;
+  }
+  if(data.session){
+    showDashboard(data.session.user);
+  }else{
+    showAuthentication();
+  }
 }
 
-</script>
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_IN" && session){
+    showDashboard(session.user);
+  }
+  if(event==="SIGNED_OUT"){
+    showAuthentication();
+  }
+});
 
+/* PROFILE */
+async function loadProfile(){
+  if(!currentUser)return;
+  const {data,error}=await db.from("profiles")
+    .select("*").eq("id",currentUser.id).maybeSingle();
+
+  if(error){
+    showMessage("Could not load profile.","error","dashboardMessage");
+    return;
+  }
+  const name=data?.display_name||currentUser.user_metadata?.display_name||"";
+  document.getElementById("profileName").value=name;
+  document.getElementById("welcomeName").textContent=name?"Hello, "+name:"Welcome!";
+}
+
+async function saveProfile(){
+  if(!currentUser)return;
+  const name=document.getElementById("profileName").value.trim();
+  const {error}=await db.from("profiles").upsert({
+    id:currentUser.id,
+    display_name:name
+  });
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+
+  await db.auth.updateUser({data:{display_name:name}});
+  document.getElementById("welcomeName").textContent=name?"Hello, "+name:"Welcome!";
+  showMessage("Profile saved.","success","dashboardMessage");
+}
+
+/* CHAT TITLES */
+async function loadChats(){
+  if(!currentUser)return;
+  const {data,error}=await db.from("chats")
+    .select("*").eq("user_id",currentUser.id)
+    .order("created_at",{ascending:false});
+
+  if(error)return;
+  const list=document.getElementById("chatList");
+  list.innerHTML="";
+  (data||[]).forEach(chat=>{
+    const row=document.createElement("div");
+    row.className="item";
+    const title=document.createElement("span");
+    title.textContent=chat.title||"Untitled chat";
+    const del=document.createElement("button");
+    del.className="smallbtn danger";
+    del.textContent="Delete";
+    del.onclick=()=>deleteChat(chat.id);
+    row.append(title,del);
+    list.appendChild(row);
+  });
+}
+async function createChat(){
+  const title=document.getElementById("chatTitle").value.trim();
+  if(!title)return showMessage("Enter a chat title.","error","dashboardMessage");
+  const {error}=await db.from("chats").insert({
+    user_id:currentUser.id,title
+  });
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+  document.getElementById("chatTitle").value="";
+  loadChats();
+}
+async function deleteChat(id){
+  if(!confirm("Delete this chat?"))return;
+  const {error}=await db.from("chats").delete()
+    .eq("id",id).eq("user_id",currentUser.id);
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+  loadChats();
+}
+
+/* PROJECTS */
+async function loadProjects(){
+  if(!currentUser)return;
+  const {data,error}=await db.from("projects")
+    .select("*").eq("user_id",currentUser.id)
+    .order("created_at",{ascending:false});
+  if(error)return;
+  const list=document.getElementById("projectList");
+  list.innerHTML="";
+  (data||[]).forEach(project=>{
+    const row=document.createElement("div");
+    row.className="item";
+    const info=document.createElement("div");
+    const title=document.createElement("strong");
+    title.textContent=project.name;
+    const desc=document.createElement("small");
+    desc.textContent=project.description||"";
+    info.append(title,document.createElement("br"),desc);
+    const del=document.createElement("button");
+    del.className="smallbtn danger";
+    del.textContent="Delete";
+    del.onclick=()=>deleteProject(project.id);
+    row.append(info,del);
+    list.appendChild(row);
+  });
+}
+async function createProject(){
+  const name=document.getElementById("projectName").value.trim();
+  const description=document.getElementById("projectDescription").value.trim();
+  if(!name)return showMessage("Enter a project name.","error","dashboardMessage");
+  const {error}=await db.from("projects").insert({
+    user_id:currentUser.id,name,description
+  });
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+  document.getElementById("projectName").value="";
+  document.getElementById("projectDescription").value="";
+  loadProjects();
+}
+async function deleteProject(id){
+  if(!confirm("Delete this project?"))return;
+  const {error}=await db.from("projects").delete()
+    .eq("id",id).eq("user_id",currentUser.id);
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+  loadProjects();
+}
+
+/* MEMORY */
+async function loadMemories(){
+  if(!currentUser)return;
+  const {data,error}=await db.from("memories")
+    .select("*").eq("user_id",currentUser.id)
+    .order("created_at",{ascending:false});
+  if(error)return;
+  const list=document.getElementById("memoryList");
+  list.innerHTML="";
+  (data||[]).forEach(memory=>{
+    const row=document.createElement("div");
+    row.className="item";
+    const content=document.createElement("span");
+    content.textContent=memory.content;
+    const del=document.createElement("button");
+    del.className="smallbtn danger";
+    del.textContent="Delete";
+    del.onclick=()=>deleteMemory(memory.id);
+    row.append(content,del);
+    list.appendChild(row);
+  });
+}
+async function createMemory(){
+  const content=document.getElementById("memoryContent").value.trim();
+  if(!content)return showMessage("Write something to save.","error","dashboardMessage");
+  const {error}=await db.from("memories").insert({
+    user_id:currentUser.id,content
+  });
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+  document.getElementById("memoryContent").value="";
+  loadMemories();
+}
+async function deleteMemory(id){
+  if(!confirm("Delete this memory?"))return;
+  const {error}=await db.from("memories").delete()
+    .eq("id",id).eq("user_id",currentUser.id);
+  if(error)return showMessage(error.message,"error","dashboardMessage");
+  loadMemories();
+}
+
+/* START */
+initialize();
+</script>
 </body>
 </html>
