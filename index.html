@@ -3,605 +3,972 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b14">
 <title>STEVIE AI</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
-  --bg:#080b12;
-  --panel:#101725;
-  --panel2:#151f30;
+  --bg:#070b14;
+  --panel:#0d1422;
+  --panel2:#111c2e;
+  --line:#1d2b42;
   --blue:#168cff;
-  --blue2:#0066cc;
-  --text:#f4f7ff;
-  --muted:#91a0b7;
-  --border:#26364c;
-  --danger:#ff6262;
-  --success:#36d69a;
+  --cyan:#36c5ff;
+  --text:#eef5ff;
+  --muted:#91a3ba;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial, sans-serif;min-height:100vh;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:15px/1.5 Arial,sans-serif;
+  height:100dvh;
+  overflow:hidden;
 }
 button,input,textarea{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
-.auth-wrap{
-  min-height:100vh;display:flex;align-items:center;
-  justify-content:center;padding:20px;
+
+/* AUTHENTICATION */
+#authView{
+  min-height:100dvh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:radial-gradient(circle at 50% 0%,#102c4d 0,transparent 48%);
 }
 .auth-card{
-  width:100%;max-width:420px;background:var(--panel);
-  border:1px solid var(--border);border-radius:18px;
-  padding:28px;box-shadow:0 15px 50px #0008;
+  width:min(420px,100%);
+  padding:30px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:22px;
+  box-shadow:0 20px 70px #0008;
 }
-.logo{
-  font-size:29px;font-weight:800;letter-spacing:1px;
-  color:var(--blue);text-align:center;margin-bottom:8px;
+.brand{
+  font-size:29px;
+  font-weight:800;
+  letter-spacing:1px;
 }
-.subtitle{text-align:center;color:var(--muted);margin-bottom:25px}
-h2{margin:0 0 18px}
-input,textarea{
-  width:100%;padding:14px;margin:7px 0 14px;
-  color:var(--text);background:#080e19;
-  border:1px solid var(--border);border-radius:10px;
+.brand span,.side-brand span{color:var(--cyan)}
+.tagline{color:var(--muted);margin:4px 0 25px}
+.field{
+  width:100%;
+  padding:13px 14px;
+  margin:7px 0;
+  background:#080f1b;
+  border:1px solid var(--line);
+  border-radius:11px;
+  color:var(--text);
   outline:none;
 }
-input:focus,textarea:focus{border-color:var(--blue)}
-textarea{min-height:90px;resize:vertical}
+.field:focus{border-color:var(--blue)}
 .primary{
-  width:100%;padding:14px;border:0;border-radius:10px;
-  color:white;background:var(--blue);font-weight:bold;
+  width:100%;
+  border:0;
+  border-radius:11px;
+  padding:13px;
+  background:linear-gradient(100deg,#0878e9,#19b5ff);
+  color:white;
+  font-weight:700;
+  margin-top:12px;
 }
-.primary:hover{background:var(--blue2)}
-.link{
-  background:none;border:0;color:#55aaff;padding:8px 0;
+.text-btn{
+  background:none;
+  border:0;
+  color:#62baff;
+  padding:10px 4px;
 }
+.auth-note{
+  color:var(--muted);
+  font-size:13px;
+  min-height:20px;
+  margin-top:12px;
+}
+
+/* MAIN APP */
+#app{height:100dvh;display:flex}
+.sidebar{
+  width:270px;
+  background:#090f1b;
+  border-right:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  padding:18px 13px;
+  flex-shrink:0;
+}
+.side-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 7px 20px;
+}
+.side-brand{font-size:20px;font-weight:800}
+.side-btn{
+  width:100%;
+  padding:11px 12px;
+  margin:4px 0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#101a2a;
+  color:var(--text);
+  text-align:left;
+}
+.side-btn:hover,.history-item:hover{background:#15243a}
+.section-label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  margin:22px 8px 8px;
+}
+#historyList{overflow:auto;flex:1}
+.history-item{
+  display:block;
+  width:100%;
+  padding:10px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#c8d6e8;
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.account{
+  border-top:1px solid var(--line);
+  padding:13px 5px 0;
+  color:var(--muted);
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+.main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+.topbar{
+  height:62px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  background:#090f1bcc;
+}
+.top-title{font-weight:700}
+.small-btn{
+  background:#111d30;
+  border:1px solid var(--line);
+  color:var(--text);
+  border-radius:9px;
+  padding:8px 11px;
+}
+#messages{
+  flex:1;
+  overflow:auto;
+  padding:25px max(18px,calc((100% - 850px)/2));
+  scroll-behavior:smooth;
+}
+.welcome{
+  text-align:center;
+  margin:12vh auto 30px;
+  max-width:600px;
+}
+.welcome-mark{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 18px;
+  background:linear-gradient(135deg,#0878e9,#2bc4ff);
+  font-size:30px;
+  font-weight:900;
+  box-shadow:0 0 35px #168cff55;
+}
+.welcome h1{
+  font-size:clamp(27px,5vw,39px);
+  margin:0 0 8px;
+}
+.welcome p{color:var(--muted)}
 .message{
-  padding:11px;border-radius:9px;margin:12px 0;
-  font-size:14px;line-height:1.5;
+  max-width:780px;
+  margin:0 auto 22px;
+  display:flex;
+  flex-direction:column;
 }
-.error{background:#401c26;color:#ffb1b1}
-.success{background:#12372d;color:#8af0c5}
-.auth-links{
-  display:flex;justify-content:space-between;gap:10px;
-  flex-wrap:wrap;margin-top:12px;
+.message.user{align-items:flex-end}
+.message.assistant{align-items:flex-start}
+.bubble{
+  max-width:min(85%,700px);
+  padding:12px 16px;
+  border-radius:17px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
 }
-header{
-  height:65px;background:var(--panel);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;position:sticky;top:0;z-index:5;
+.user .bubble{
+  background:#123a65;
+  border:1px solid #1c5c91;
+  border-bottom-right-radius:5px;
 }
-header .logo{margin:0;font-size:22px}
-.layout{display:flex;min-height:calc(100vh - 65px)}
-aside{
-  width:220px;background:var(--panel);
-  border-right:1px solid var(--border);padding:18px 12px;
+.assistant .bubble{
+  background:transparent;
+  padding:3px 0;
+  max-width:100%;
+  border-radius:0;
 }
-.navbtn{
-  width:100%;text-align:left;padding:13px;
-  border:0;border-radius:9px;background:transparent;
-  color:var(--muted);margin-bottom:5px;
+.assistant-logo{
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  background:linear-gradient(135deg,#0878e9,#2bc4ff);
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  margin-bottom:8px;
+  color:white;
 }
-.navbtn.active,.navbtn:hover{
-  background:#122b48;color:white;
+.assistant .bubble pre{
+  white-space:pre-wrap;
+  background:#080f1b;
+  border:1px solid var(--line);
+  padding:12px;
+  border-radius:10px;
+  overflow:auto;
 }
-main{flex:1;padding:25px;min-width:0}
-.page{max-width:900px;margin:auto}
-.card{
-  background:var(--panel);border:1px solid var(--border);
-  padding:20px;border-radius:14px;margin:15px 0;
+.thinking{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  padding:8px 0;
 }
-.item{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;padding:13px 0;border-bottom:1px solid var(--border);
+.think-symbol{
+  font-size:27px;
+  font-weight:900;
+  color:var(--cyan);
+  animation:morph 1.3s infinite ease-in-out;
+  text-shadow:0 0 18px #168cff;
 }
-.item:last-child{border-bottom:0}
-.item small{color:var(--muted)}
-.smallbtn{
-  padding:8px 12px;background:var(--panel2);
-  color:var(--text);border:1px solid var(--border);
-  border-radius:8px;
+@keyframes morph{
+  0%,100%{transform:scale(.85) rotate(-8deg);opacity:.65}
+  50%{transform:scale(1.12) rotate(8deg);opacity:1}
 }
-.danger{color:#ff8585}
-.muted{color:var(--muted)}
-#dashboardMessage{max-width:900px;margin:0 auto}
-@media(max-width:650px){
-  header{padding:0 13px}
-  .layout{display:block}
-  aside{
-    width:100%;display:flex;overflow-x:auto;
-    padding:8px;border-right:0;border-bottom:1px solid var(--border);
+.composer-wrap{
+  padding:12px 18px 18px;
+  background:linear-gradient(transparent,#070b14 24%);
+}
+.composer{
+  max-width:850px;
+  margin:auto;
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  padding:10px;
+  background:#0d1727;
+  border:1px solid #243750;
+  border-radius:17px;
+  box-shadow:0 8px 35px #0005;
+}
+#prompt{
+  flex:1;
+  resize:none;
+  max-height:180px;
+  min-height:28px;
+  background:transparent;
+  border:0;
+  outline:none;
+  color:var(--text);
+  padding:6px 4px;
+}
+#sendBtn{
+  border:0;
+  border-radius:11px;
+  background:var(--blue);
+  color:white;
+  padding:10px 15px;
+  font-weight:700;
+}
+#sendBtn:disabled{opacity:.45;cursor:not-allowed}
+.disclaimer{
+  text-align:center;
+  color:#71839a;
+  font-size:11px;
+  margin:8px auto 0;
+}
+.mobile-menu{display:none}
+
+@media(max-width:720px){
+  .sidebar{
+    position:fixed;
+    z-index:5;
+    inset:0 auto 0 0;
+    width:285px;
+    transform:translateX(-105%);
+    transition:.22s;
+    box-shadow:20px 0 50px #0008;
   }
-  .navbtn{
-    width:auto;white-space:nowrap;margin:0 4px;
-    padding:11px;
-  }
-  main{padding:15px}
-  .auth-card{padding:22px}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-menu{display:inline-block}
+  .topbar{padding:0 12px}
+  .top-title{font-size:14px}
+  #messages{padding:20px 15px}
+  .composer-wrap{padding:9px 10px 12px}
+  .bubble{max-width:92%}
+  .welcome{margin-top:10vh}
 }
 </style>
 </head>
 
 <body>
 
-<section id="authPage" class="auth-wrap">
+<!-- LOGIN / SIGNUP -->
+<section id="authView">
   <div class="auth-card">
-    <div class="logo">STEVIE AI</div>
-    <div class="subtitle">Your intelligent creative assistant.</div>
+    <div class="brand">STEVIE <span>AI</span></div>
+    <div class="tagline">Your ideas. Your world. Let's build.</div>
 
-    <div id="authMessage"></div>
+    <div id="signupFields" class="hidden">
+      <input id="displayName" class="field" placeholder="Your name" autocomplete="name">
+    </div>
 
-    <form id="loginForm">
-      <h2>Welcome Back</h2>
-      <input id="loginEmail" type="email" placeholder="Email address" required>
-      <input id="loginPassword" type="password" placeholder="Password" required>
-      <button class="primary" type="submit">Login</button>
-      <div class="auth-links">
-        <button class="link" type="button" onclick="showForm('signupForm')">Create Account</button>
-        <button class="link" type="button" onclick="showForm('forgotForm')">Forgot Password?</button>
-      </div>
-    </form>
+    <input id="email" class="field" type="email"
+      placeholder="Email address" autocomplete="email">
 
-    <form id="signupForm" class="hidden">
-      <h2>Create Account</h2>
-      <input id="signupName" placeholder="Your name" required>
-      <input id="signupEmail" type="email" placeholder="Email address" required>
-      <input id="signupPassword" type="password" minlength="6" placeholder="Password (at least 6 characters)" required>
-      <button class="primary" type="submit">Sign Up</button>
-      <button class="link" type="button" onclick="showForm('loginForm')">Back to Login</button>
-    </form>
+    <input id="password" class="field" type="password"
+      placeholder="Password" autocomplete="current-password">
 
-    <form id="forgotForm" class="hidden">
-      <h2>Reset Password</h2>
-      <p class="muted">Enter your email to receive a password reset link.</p>
-      <input id="resetEmail" type="email" placeholder="Email address" required>
-      <button class="primary" type="submit">Send Reset Link</button>
-      <button class="link" type="button" onclick="showForm('loginForm')">Back to Login</button>
-    </form>
+    <button id="authSubmit" class="primary">Log in</button>
 
-    <form id="updatePasswordForm" class="hidden">
-      <h2>Choose New Password</h2>
-      <input id="newPassword" type="password" minlength="6" placeholder="New password" required>
-      <button class="primary" type="submit">Update Password</button>
-    </form>
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap">
+      <button id="toggleAuth" class="text-btn">Create account</button>
+      <button id="forgotBtn" class="text-btn">Forgot password?</button>
+    </div>
+
+    <div id="authNote" class="auth-note"></div>
   </div>
 </section>
 
-<section id="dashboard" class="hidden">
-  <header>
-    <div class="logo">STEVIE AI</div>
-    <button class="smallbtn" onclick="logout()">Logout</button>
-  </header>
+<!-- CHAT APP -->
+<section id="app" class="hidden">
 
-  <div class="layout">
-    <aside>
-      <button class="navbtn active" onclick="openPage('homePage',this)">Home</button>
-      <button class="navbtn" onclick="openPage('historyPage',this)">Chat History</button>
-      <button class="navbtn" onclick="openPage('projectsPage',this)">Projects</button>
-      <button class="navbtn" onclick="openPage('memoryPage',this)">Memory</button>
-      <button class="navbtn" onclick="openPage('profilePage',this)">Profile</button>
-    </aside>
+  <aside id="sidebar" class="sidebar">
+    <div class="side-top">
+      <div class="side-brand">STEVIE <span>AI</span></div>
+      <button id="closeSide" class="small-btn">✕</button>
+    </div>
 
-    <main>
-      <div id="dashboardMessage"></div>
+    <button id="newChatBtn" class="side-btn">＋ New chat</button>
 
-      <section id="homePage" class="page">
-        <div class="card">
-          <h2>Welcome to STEVIE AI</h2>
-          <p class="muted">Your space for creativity, ideas and technology.</p>
-          <p id="welcomeName"></p>
-          <p id="welcomeEmail" class="muted"></p>
-        </div>
-        <div class="card">
-          <h3>Your Workspace</h3>
-          <p class="muted">Your account dashboard is ready.</p>
-          <p>Chat, projects and memory management will be available here as their features are connected.</p>
-        </div>
-      </section>
+    <div class="section-label">Recent chats</div>
+    <div id="historyList"></div>
 
-      <section id="historyPage" class="page hidden">
-        <h2>Chat History</h2>
-        <div class="card">
-          <input id="chatTitle" placeholder="Enter chat title">
-          <button class="primary" onclick="createChat()">Create Chat</button>
-          <div id="chatList"></div>
-        </div>
-      </section>
+    <div class="account">
+      <div id="accountEmail"></div>
+      <button id="logoutBtn" class="text-btn">Log out</button>
+    </div>
+  </aside>
 
-      <section id="projectsPage" class="page hidden">
-        <h2>Projects</h2>
-        <div class="card">
-          <input id="projectName" placeholder="Project name">
-          <textarea id="projectDescription" placeholder="Project description"></textarea>
-          <button class="primary" onclick="createProject()">Save Project</button>
-          <div id="projectList"></div>
-        </div>
-      </section>
+  <main class="main">
 
-      <section id="memoryPage" class="page hidden">
-        <h2>Memory</h2>
-        <div class="card">
-          <textarea id="memoryContent" placeholder="Write something you want to save..."></textarea>
-          <button class="primary" onclick="createMemory()">Save Memory</button>
-          <div id="memoryList"></div>
-        </div>
-      </section>
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="menuBtn" class="small-btn mobile-menu">☰</button>
+        <div class="top-title">STEVIE AI <span style="color:var(--cyan)">●</span></div>
+      </div>
+      <button id="newTopBtn" class="small-btn">＋ New chat</button>
+    </header>
 
-      <section id="profilePage" class="page hidden">
-        <h2>Profile</h2>
-        <div class="card">
-          <label>Display Name</label>
-          <input id="profileName" placeholder="Your name">
-          <label>Email</label>
-          <input id="profileEmail" disabled>
-          <button class="primary" onclick="saveProfile()">Save Profile</button>
-        </div>
-      </section>
-    </main>
-  </div>
+    <div id="messages">
+      <div id="welcome" class="welcome">
+        <div class="welcome-mark">S</div>
+        <h1>How can I help you today?</h1>
+        <p>Ask me anything. Let's create something amazing.</p>
+      </div>
+    </div>
+
+    <div class="composer-wrap">
+      <div class="composer">
+        <textarea id="prompt" rows="1"
+          placeholder="Message STEVIE AI..."></textarea>
+        <button id="sendBtn">Send</button>
+      </div>
+      <div class="disclaimer">
+        STEVIE AI can make mistakes. Check important information.
+      </div>
+    </div>
+
+  </main>
 </section>
 
 <script>
-/* STEVIE AI CONFIGURATION */
-const SUPABASE_URL = "https://zaqijuxyibqkdvnxruvh.supabase.co";
-const SUPABASE_KEY = "sb_publishable_VRQRTg0NhvhYFacvboQdpw_npqAmh-0";
+/* =====================================
+   STEVIE AI CONFIGURATION
+===================================== */
 
-/* IMPORTANT: GitHub Pages repository path must be included. */
-const SITE_URL = "https://ishmaelnelson213-sys.github.io/stevie-ai/";
+const SUPABASE_URL =
+  "https://zaqijuxyibqkdvnxruvh.supabase.co";
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_KEY =
+  "sb_publishable_VRQRTg0NhvhYFacvboQdpw_npqAmh-0";
+
+const BACKEND_URL =
+  "https://script.google.com/macros/s/AKfycbxtKDjsn_KTi-Adx4e4Co0jyCmp5_gLQyc4VN7aJZ4IcJVlea_UzttFNzYVpozyQ5OD_g/exec";
+
+const SITE_URL =
+  "https://ishmaelnelson213-sys.github.io/stevie-ai/";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+/* =====================================
+   APP STATE
+===================================== */
 
 let currentUser = null;
+let currentChatId = null;
+let chatHistory = [];
+let isSignup = false;
+let isSending = false;
 
-function showMessage(message,type="success",target="authMessage"){
-  const el=document.getElementById(target);
-  el.innerHTML="";
-  const box=document.createElement("div");
-  box.className="message "+(type==="error"?"error":"success");
-  box.textContent=message;
-  el.appendChild(box);
-}
-function clearMessage(target="authMessage"){
-  document.getElementById(target).innerHTML="";
-}
-function showForm(id){
-  ["loginForm","signupForm","forgotForm","updatePasswordForm"]
-    .forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  clearMessage();
-}
-function openPage(id,button){
-  document.querySelectorAll("main .page").forEach(p=>p.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
-  if(button)button.classList.add("active");
-  clearMessage("dashboardMessage");
-}
-function setBusy(form,busy){
-  const button=form.querySelector('button[type="submit"]');
-  if(button){
-    button.disabled=busy;
-    button.textContent=busy?"Please wait...":button.dataset.original;
+const clientId = getClientId();
+
+function getClientId(){
+  let id = localStorage.getItem("stevie_client_id");
+  if(!id){
+    id = "stevie_" + crypto.randomUUID();
+    localStorage.setItem("stevie_client_id",id);
   }
+  return id;
 }
-document.querySelectorAll("form").forEach(form=>{
-  const button=form.querySelector('button[type="submit"]');
-  if(button)button.dataset.original=button.textContent;
+
+/* =====================================
+   ELEMENTS
+===================================== */
+
+const authView = document.getElementById("authView");
+const appView = document.getElementById("app");
+const authNote = document.getElementById("authNote");
+const authSubmit = document.getElementById("authSubmit");
+const signupFields = document.getElementById("signupFields");
+const toggleAuth = document.getElementById("toggleAuth");
+const forgotBtn = document.getElementById("forgotBtn");
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const displayNameInput = document.getElementById("displayName");
+
+const messagesBox = document.getElementById("messages");
+const promptInput = document.getElementById("prompt");
+const sendBtn = document.getElementById("sendBtn");
+const historyList = document.getElementById("historyList");
+
+/* =====================================
+   AUTHENTICATION
+===================================== */
+
+toggleAuth.addEventListener("click",()=>{
+  isSignup = !isSignup;
+
+  signupFields.classList.toggle("hidden",!isSignup);
+
+  authSubmit.textContent = isSignup
+    ? "Create account"
+    : "Log in";
+
+  toggleAuth.textContent = isSignup
+    ? "Already have an account? Log in"
+    : "Create account";
+
+  forgotBtn.classList.toggle("hidden",isSignup);
+  authNote.textContent = "";
 });
 
-async function signup(event){
-  event.preventDefault();
-  const form=event.target;
-  setBusy(form,true);
-  const name=document.getElementById("signupName").value.trim();
-  const email=document.getElementById("signupEmail").value.trim();
-  const password=document.getElementById("signupPassword").value;
+authSubmit.addEventListener("click",async()=>{
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-  const {data,error}=await db.auth.signUp({
-    email,password,
-    options:{
-      data:{display_name:name},
-      emailRedirectTo:SITE_URL
-    }
-  });
-
-  setBusy(form,false);
-  if(error)return showMessage(error.message,"error");
-
-  if(data.session){
-    showMessage("Your account has been created.","success");
-  }else{
-    showMessage("Registration received. Check your email and verify your account before logging in.","success");
-  }
-}
-document.getElementById("signupForm").addEventListener("submit",signup);
-
-async function login(event){
-  event.preventDefault();
-  const form=event.target;
-  setBusy(form,true);
-  const email=document.getElementById("loginEmail").value.trim();
-  const password=document.getElementById("loginPassword").value;
-
-  const {error}=await db.auth.signInWithPassword({email,password});
-  setBusy(form,false);
-
-  if(error)return showMessage("Login failed. Check your email and password. If you have not verified your email, check your inbox.","error");
-}
-document.getElementById("loginForm").addEventListener("submit",login);
-
-async function sendResetEmail(event){
-  event.preventDefault();
-  const form=event.target;
-  setBusy(form,true);
-  const email=document.getElementById("resetEmail").value.trim();
-
-  const {error}=await db.auth.resetPasswordForEmail(email,{
-    redirectTo:SITE_URL
-  });
-
-  setBusy(form,false);
-  if(error)return showMessage(error.message,"error");
-  showMessage("If the email is registered, a password reset link will be sent. Check your inbox and Spam folder.","success");
-}
-document.getElementById("forgotForm").addEventListener("submit",sendResetEmail);
-
-async function updatePassword(event){
-  event.preventDefault();
-  const form=event.target;
-  setBusy(form,true);
-  const password=document.getElementById("newPassword").value;
-
-  const {error}=await db.auth.updateUser({password});
-  setBusy(form,false);
-
-  if(error)return showMessage(error.message,"error");
-  showMessage("Password updated successfully. You can now use your new password.","success");
-  setTimeout(()=>showForm("loginForm"),1800);
-}
-document.getElementById("updatePasswordForm").addEventListener("submit",updatePassword);
-
-async function logout(){
-  const {error}=await db.auth.signOut();
-  if(error)showMessage(error.message,"error","dashboardMessage");
-}
-
-function showDashboard(user){
-  currentUser=user;
-  document.getElementById("authPage").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
-  document.getElementById("welcomeEmail").textContent=user.email||"";
-  document.getElementById("profileEmail").value=user.email||"";
-  loadProfile();
-  loadChats();
-  loadProjects();
-  loadMemories();
-}
-
-function showAuthentication(){
-  currentUser=null;
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("authPage").classList.remove("hidden");
-  showForm("loginForm");
-}
-
-/* AUTHENTICATION AND EMAIL CALLBACKS */
-async function initialize(){
-  const hash=window.location.hash;
-  const params=new URLSearchParams(hash.replace(/^#/,""));
-  const type=params.get("type");
-  const accessToken=params.get("access_token");
-  const refreshToken=params.get("refresh_token");
-  const authError=params.get("error_description");
-
-  if(authError){
-    showAuthentication();
-    showMessage(decodeURIComponent(authError.replace(/\+/g," ")),"error");
-    history.replaceState(null,"",SITE_URL);
+  if(!email || !password){
+    authNote.textContent = "Enter your email and password.";
     return;
   }
 
-  if(accessToken && refreshToken){
-    const {error}=await db.auth.setSession({
-      access_token:accessToken,
-      refresh_token:refreshToken
-    });
-    if(error){
-      showAuthentication();
-      showMessage("We could not verify this email link. Request a fresh link and try again.","error");
-      return;
-    }
-    history.replaceState(null,"",SITE_URL);
-    if(type==="recovery"){
-      showAuthentication();
-      showForm("updatePasswordForm");
-      return;
-    }
-  }
+  authSubmit.disabled = true;
+  authNote.textContent = "Please wait...";
 
-  const {data,error}=await db.auth.getSession();
-  if(error){
-    showAuthentication();
-    return;
-  }
-  if(data.session){
-    showDashboard(data.session.user);
-  }else{
-    showAuthentication();
-  }
-}
+  try{
 
-db.auth.onAuthStateChange((event,session)=>{
-  if(event==="SIGNED_IN" && session){
-    showDashboard(session.user);
-  }
-  if(event==="SIGNED_OUT"){
-    showAuthentication();
+    if(isSignup){
+      const displayName = displayNameInput.value.trim();
+
+      const {data,error} = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options:{
+          data:{display_name:displayName},
+          emailRedirectTo:SITE_URL
+        }
+      });
+
+      if(error) throw error;
+
+      if(data.session){
+        currentUser = data.user;
+        await openApp();
+      }else{
+        authNote.textContent =
+          "Account created. Check your email to confirm your account, then log in.";
+      }
+
+    }else{
+
+      const {data,error} = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if(error) throw error;
+
+      currentUser = data.user;
+      await openApp();
+    }
+
+  }catch(error){
+    authNote.textContent = friendlyAuthError(error);
+  }finally{
+    authSubmit.disabled = false;
   }
 });
 
-/* PROFILE */
-async function loadProfile(){
-  if(!currentUser)return;
-  const {data,error}=await db.from("profiles")
-    .select("*").eq("id",currentUser.id).maybeSingle();
+function friendlyAuthError(error){
+  const message = (error.message || "").toLowerCase();
 
-  if(error){
-    showMessage("Could not load profile.","error","dashboardMessage");
+  if(message.includes("invalid login credentials")){
+    return "Email or password is incorrect.";
+  }
+
+  if(message.includes("rate limit")){
+    return "Too many email requests. Please wait and try again later.";
+  }
+
+  if(message.includes("email not confirmed")){
+    return "Please confirm your email before logging in.";
+  }
+
+  return error.message || "Something went wrong. Please try again.";
+}
+
+forgotBtn.addEventListener("click",async()=>{
+  const email = emailInput.value.trim();
+
+  if(!email){
+    authNote.textContent = "Enter your email address first.";
     return;
   }
-  const name=data?.display_name||currentUser.user_metadata?.display_name||"";
-  document.getElementById("profileName").value=name;
-  document.getElementById("welcomeName").textContent=name?"Hello, "+name:"Welcome!";
+
+  authNote.textContent = "Sending password reset email...";
+
+  const {error} = await supabaseClient.auth.resetPasswordForEmail(
+    email,
+    {redirectTo:SITE_URL}
+  );
+
+  authNote.textContent = error
+    ? friendlyAuthError(error)
+    : "If the account exists, a password reset email has been sent.";
+});
+
+document.getElementById("logoutBtn").addEventListener("click",async()=>{
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentChatId = null;
+  chatHistory = [];
+  showAuth();
+});
+
+/* =====================================
+   SESSION CHECK
+===================================== */
+
+async function initializeApp(){
+  const {data,error} = await supabaseClient.auth.getSession();
+
+  if(error){
+    showAuth();
+    return;
+  }
+
+  if(data.session){
+    currentUser = data.session.user;
+    await openApp();
+  }else{
+    showAuth();
+  }
 }
 
-async function saveProfile(){
-  if(!currentUser)return;
-  const name=document.getElementById("profileName").value.trim();
-  const {error}=await db.from("profiles").upsert({
-    id:currentUser.id,
-    display_name:name
-  });
-  if(error)return showMessage(error.message,"error","dashboardMessage");
+supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+  if(event === "PASSWORD_RECOVERY"){
+    authView.classList.remove("hidden");
+    appView.classList.add("hidden");
+    authNote.textContent = "Password recovery session detected.";
+  }
 
-  await db.auth.updateUser({data:{display_name:name}});
-  document.getElementById("welcomeName").textContent=name?"Hello, "+name:"Welcome!";
-  showMessage("Profile saved.","success","dashboardMessage");
+  if(event === "SIGNED_OUT"){
+    showAuth();
+  }
+});
+
+function showAuth(){
+  authView.classList.remove("hidden");
+  appView.classList.add("hidden");
 }
 
-/* CHAT TITLES */
+/* =====================================
+   OPEN CHAT APP
+===================================== */
+
+async function openApp(){
+  if(!currentUser) return;
+
+  authView.classList.add("hidden");
+  appView.classList.remove("hidden");
+
+  document.getElementById("accountEmail").textContent =
+    currentUser.email || "";
+
+  await loadChats();
+  startNewChat();
+}
+
+/* =====================================
+   CHAT HISTORY
+===================================== */
+
 async function loadChats(){
-  if(!currentUser)return;
-  const {data,error}=await db.from("chats")
-    .select("*").eq("user_id",currentUser.id)
+  const {data,error} = await supabaseClient
+    .from("chats")
+    .select("*")
+    .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
-  if(error)return;
-  const list=document.getElementById("chatList");
-  list.innerHTML="";
-  (data||[]).forEach(chat=>{
-    const row=document.createElement("div");
-    row.className="item";
-    const title=document.createElement("span");
-    title.textContent=chat.title||"Untitled chat";
-    const del=document.createElement("button");
-    del.className="smallbtn danger";
-    del.textContent="Delete";
-    del.onclick=()=>deleteChat(chat.id);
-    row.append(title,del);
-    list.appendChild(row);
+  if(error){
+    console.error("Chat history error:",error.message);
+    historyList.innerHTML =
+      '<div style="color:#91a3ba;padding:8px;font-size:12px">Unable to load chat history.</div>';
+    return;
+  }
+
+  historyList.innerHTML = "";
+
+  (data || []).forEach(chat=>{
+    const button = document.createElement("button");
+    button.className = "history-item";
+    button.textContent = chat.title || "New chat";
+    button.addEventListener("click",()=>openChat(chat.id));
+    historyList.appendChild(button);
   });
-}
-async function createChat(){
-  const title=document.getElementById("chatTitle").value.trim();
-  if(!title)return showMessage("Enter a chat title.","error","dashboardMessage");
-  const {error}=await db.from("chats").insert({
-    user_id:currentUser.id,title
-  });
-  if(error)return showMessage(error.message,"error","dashboardMessage");
-  document.getElementById("chatTitle").value="";
-  loadChats();
-}
-async function deleteChat(id){
-  if(!confirm("Delete this chat?"))return;
-  const {error}=await db.from("chats").delete()
-    .eq("id",id).eq("user_id",currentUser.id);
-  if(error)return showMessage(error.message,"error","dashboardMessage");
-  loadChats();
 }
 
-/* PROJECTS */
-async function loadProjects(){
-  if(!currentUser)return;
-  const {data,error}=await db.from("projects")
-    .select("*").eq("user_id",currentUser.id)
-    .order("created_at",{ascending:false});
-  if(error)return;
-  const list=document.getElementById("projectList");
-  list.innerHTML="";
-  (data||[]).forEach(project=>{
-    const row=document.createElement("div");
-    row.className="item";
-    const info=document.createElement("div");
-    const title=document.createElement("strong");
-    title.textContent=project.name;
-    const desc=document.createElement("small");
-    desc.textContent=project.description||"";
-    info.append(title,document.createElement("br"),desc);
-    const del=document.createElement("button");
-    del.className="smallbtn danger";
-    del.textContent="Delete";
-    del.onclick=()=>deleteProject(project.id);
-    row.append(info,del);
-    list.appendChild(row);
-  });
-}
-async function createProject(){
-  const name=document.getElementById("projectName").value.trim();
-  const description=document.getElementById("projectDescription").value.trim();
-  if(!name)return showMessage("Enter a project name.","error","dashboardMessage");
-  const {error}=await db.from("projects").insert({
-    user_id:currentUser.id,name,description
-  });
-  if(error)return showMessage(error.message,"error","dashboardMessage");
-  document.getElementById("projectName").value="";
-  document.getElementById("projectDescription").value="";
-  loadProjects();
-}
-async function deleteProject(id){
-  if(!confirm("Delete this project?"))return;
-  const {error}=await db.from("projects").delete()
-    .eq("id",id).eq("user_id",currentUser.id);
-  if(error)return showMessage(error.message,"error","dashboardMessage");
-  loadProjects();
+async function createChat(title){
+  const {data,error} = await supabaseClient
+    .from("chats")
+    .insert({
+      user_id:currentUser.id,
+      title:title || "New chat"
+    })
+    .select()
+    .single();
+
+  if(error){
+    console.error("Create chat error:",error.message);
+    return null;
+  }
+
+  currentChatId = data.id;
+  await loadChats();
+  return data;
 }
 
-/* MEMORY */
-async function loadMemories(){
-  if(!currentUser)return;
-  const {data,error}=await db.from("memories")
-    .select("*").eq("user_id",currentUser.id)
-    .order("created_at",{ascending:false});
-  if(error)return;
-  const list=document.getElementById("memoryList");
-  list.innerHTML="";
-  (data||[]).forEach(memory=>{
-    const row=document.createElement("div");
-    row.className="item";
-    const content=document.createElement("span");
-    content.textContent=memory.content;
-    const del=document.createElement("button");
-    del.className="smallbtn danger";
-    del.textContent="Delete";
-    del.onclick=()=>deleteMemory(memory.id);
-    row.append(content,del);
-    list.appendChild(row);
-  });
-}
-async function createMemory(){
-  const content=document.getElementById("memoryContent").value.trim();
-  if(!content)return showMessage("Write something to save.","error","dashboardMessage");
-  const {error}=await db.from("memories").insert({
-    user_id:currentUser.id,content
-  });
-  if(error)return showMessage(error.message,"error","dashboardMessage");
-  document.getElementById("memoryContent").value="";
-  loadMemories();
-}
-async function deleteMemory(id){
-  if(!confirm("Delete this memory?"))return;
-  const {error}=await db.from("memories").delete()
-    .eq("id",id).eq("user_id",currentUser.id);
-  if(error)return showMessage(error.message,"error","dashboardMessage");
-  loadMemories();
+function startNewChat(){
+  currentChatId = null;
+  chatHistory = [];
+  messagesBox.innerHTML = `
+    <div id="welcome" class="welcome">
+      <div class="welcome-mark">S</div>
+      <h1>How can I help you today?</h1>
+      <p>Ask me anything. Let's create something amazing.</p>
+    </div>
+  `;
+  closeSidebar();
 }
 
-/* START */
-initialize();
+async function openChat(chatId){
+  currentChatId = chatId;
+  chatHistory = [];
+  messagesBox.innerHTML = "";
+
+  const {data,error} = await supabaseClient
+    .from("messages")
+    .select("*")
+    .eq("chat_id",chatId)
+    .eq("user_id",currentUser.id)
+    .order("created_at",{ascending:true});
+
+  if(error){
+    console.error("Load messages error:",error.message);
+    showTemporaryMessage("Unable to load this conversation.");
+    return;
+  }
+
+  (data || []).forEach(row=>{
+    const role = row.role === "assistant" ? "assistant" : "user";
+    const content = row.content || row.message || "";
+
+    chatHistory.push({role,text:content});
+    renderMessage(role,content);
+  });
+
+  closeSidebar();
+}
+
+/* =====================================
+   SAVE MESSAGES
+===================================== */
+
+async function saveMessage(role,content){
+  if(!currentChatId) return;
+
+  const {error} = await supabaseClient
+    .from("messages")
+    .insert({
+      chat_id:currentChatId,
+      user_id:currentUser.id,
+      role:role,
+      content:content
+    });
+
+  if(error){
+    console.error("Save message error:",error.message);
+  }
+}
+
+/* =====================================
+   RENDER CHAT
+===================================== */
+
+function renderMessage(role,text){
+  const welcome = document.getElementById("welcome");
+  if(welcome) welcome.remove();
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "message " + role;
+
+  if(role === "assistant"){
+    const logo = document.createElement("div");
+    logo.className = "assistant-logo";
+    logo.textContent = "S";
+    wrapper.appendChild(logo);
+  }
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  wrapper.appendChild(bubble);
+  messagesBox.appendChild(wrapper);
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+
+function showTemporaryMessage(text){
+  renderMessage("assistant",text);
+}
+
+/* =====================================
+   THINKING ANIMATION
+===================================== */
+
+function showThinking(){
+  const wrapper = document.createElement("div");
+  wrapper.className = "message assistant";
+  wrapper.id = "thinkingMessage";
+
+  const thinking = document.createElement("div");
+  thinking.className = "thinking";
+
+  const symbol = document.createElement("div");
+  symbol.className = "think-symbol";
+  symbol.textContent = "S";
+
+  const label = document.createElement("span");
+  label.textContent = "STEVIE is thinking...";
+
+  thinking.appendChild(symbol);
+  thinking.appendChild(label);
+  wrapper.appendChild(thinking);
+
+  messagesBox.appendChild(wrapper);
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+
+  let showEight = false;
+  const timer = setInterval(()=>{
+    showEight = !showEight;
+    symbol.textContent = showEight ? "8" : "S";
+  },650);
+
+  return ()=>{
+    clearInterval(timer);
+    wrapper.remove();
+  };
+}
+
+/* =====================================
+   SEND MESSAGE TO STEVIE
+===================================== */
+
+sendBtn.addEventListener("click",sendMessage);
+
+promptInput.addEventListener("keydown",event=>{
+  if(event.key === "Enter" && !event.shiftKey){
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+promptInput.addEventListener("input",()=>{
+  promptInput.style.height = "auto";
+  promptInput.style.height =
+    Math.min(promptInput.scrollHeight,180) + "px";
+});
+
+async function sendMessage(){
+  const message = promptInput.value.trim();
+
+  if(!message || isSending || !currentUser) return;
+
+  isSending = true;
+  sendBtn.disabled = true;
+
+  promptInput.value = "";
+  promptInput.style.height = "auto";
+
+  if(!currentChatId){
+    const title = message.length > 38
+      ? message.substring(0,38) + "..."
+      : message;
+
+    const newChat = await createChat(title);
+
+    if(!newChat){
+      showTemporaryMessage(
+        "I couldn't start a new chat. Please check your connection and try again."
+      );
+      isSending = false;
+      sendBtn.disabled = false;
+      return;
+    }
+  }
+
+  renderMessage("user",message);
+  chatHistory.push({role:"user",text:message});
+  await saveMessage("user",message);
+
+  const stopThinking = showThinking();
+
+  try{
+
+    const response = await fetch(BACKEND_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=utf-8"
+      },
+      body:JSON.stringify({
+        message:message,
+        mode:"chat",
+        clientId:clientId,
+        history:chatHistory.slice(-16)
+      })
+    });
+
+    if(!response.ok){
+      throw new Error("The server could not process your message.");
+    }
+
+    const result = await response.json();
+
+    if(result.error){
+      throw new Error(
+        result.message || "STEVIE is temporarily unavailable."
+      );
+    }
+
+    const answer =
+      result.reply ||
+      result.response ||
+      result.text ||
+      result.answer ||
+      result.output;
+
+    if(!answer){
+      throw new Error("STEVIE returned an empty response.");
+    }
+
+    stopThinking();
+
+    renderMessage("assistant",answer);
+    chatHistory.push({role:"assistant",text:answer});
+    await saveMessage("assistant",answer);
+
+  }catch(error){
+
+    stopThinking();
+
+    console.error("STEVIE request error:",error);
+
+    const friendly =
+      "I'm having trouble connecting right now. Please try again in a moment.";
+
+    renderMessage("assistant",friendly);
+    chatHistory.push({role:"assistant",text:friendly});
+
+  }finally{
+    isSending = false;
+    sendBtn.disabled = false;
+    promptInput.focus();
+  }
+}
+
+/* =====================================
+   NAVIGATION
+===================================== */
+
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+}
+
+document.getElementById("menuBtn").addEventListener("click",()=>{
+  document.getElementById("sidebar").classList.toggle("open");
+});
+
+document.getElementById("closeSide").addEventListener("click",closeSidebar);
+
+document.getElementById("newChatBtn").addEventListener("click",startNewChat);
+document.getElementById("newTopBtn").addEventListener("click",startNewChat);
+
+/* =====================================
+   START
+===================================== */
+
+initializeApp();
+
 </script>
 </body>
 </html>
