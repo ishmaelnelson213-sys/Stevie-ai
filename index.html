@@ -336,7 +336,8 @@ button{cursor:pointer}
     <div class="tagline">Your ideas. Your world. Let's build.</div>
 
     <div id="signupFields" class="hidden">
-      <input id="displayName" class="field" placeholder="Your name" autocomplete="name">
+      <input id="displayName" class="field"
+        placeholder="Your name" autocomplete="name">
     </div>
 
     <input id="email" class="field" type="email"
@@ -381,7 +382,9 @@ button{cursor:pointer}
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:10px">
         <button id="menuBtn" class="small-btn mobile-menu">☰</button>
-        <div class="top-title">STEVIE AI <span style="color:var(--cyan)">●</span></div>
+        <div class="top-title">
+          STEVIE AI <span style="color:var(--cyan)">●</span>
+        </div>
       </div>
       <button id="newTopBtn" class="small-btn">＋ New chat</button>
     </header>
@@ -409,6 +412,7 @@ button{cursor:pointer}
 </section>
 
 <script>
+
 /* =====================================
    STEVIE AI CONFIGURATION
 ===================================== */
@@ -444,10 +448,12 @@ const clientId = getClientId();
 
 function getClientId(){
   let id = localStorage.getItem("stevie_client_id");
+
   if(!id){
     id = "stevie_" + crypto.randomUUID();
     localStorage.setItem("stevie_client_id",id);
   }
+
   return id;
 }
 
@@ -508,6 +514,7 @@ authSubmit.addEventListener("click",async()=>{
   try{
 
     if(isSignup){
+
       const displayName = displayNameInput.value.trim();
 
       const {data,error} = await supabaseClient.auth.signUp({
@@ -543,9 +550,13 @@ authSubmit.addEventListener("click",async()=>{
     }
 
   }catch(error){
+
     authNote.textContent = friendlyAuthError(error);
+
   }finally{
+
     authSubmit.disabled = false;
+
   }
 });
 
@@ -567,6 +578,8 @@ function friendlyAuthError(error){
   return error.message || "Something went wrong. Please try again.";
 }
 
+/* PASSWORD RESET */
+
 forgotBtn.addEventListener("click",async()=>{
   const email = emailInput.value.trim();
 
@@ -577,21 +590,33 @@ forgotBtn.addEventListener("click",async()=>{
 
   authNote.textContent = "Sending password reset email...";
 
-  const {error} = await supabaseClient.auth.resetPasswordForEmail(
-    email,
-    {redirectTo:SITE_URL}
-  );
+  try{
 
-  authNote.textContent = error
-    ? friendlyAuthError(error)
-    : "If the account exists, a password reset email has been sent.";
+    const {error} = await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {redirectTo:SITE_URL}
+    );
+
+    authNote.textContent = error
+      ? friendlyAuthError(error)
+      : "If the account exists, a password reset email has been sent.";
+
+  }catch(error){
+
+    authNote.textContent = friendlyAuthError(error);
+
+  }
 });
+
+/* LOGOUT */
 
 document.getElementById("logoutBtn").addEventListener("click",async()=>{
   await supabaseClient.auth.signOut();
+
   currentUser = null;
   currentChatId = null;
   chatHistory = [];
+
   showAuth();
 });
 
@@ -600,6 +625,7 @@ document.getElementById("logoutBtn").addEventListener("click",async()=>{
 ===================================== */
 
 async function initializeApp(){
+
   const {data,error} = await supabaseClient.auth.getSession();
 
   if(error){
@@ -616,6 +642,7 @@ async function initializeApp(){
 }
 
 supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+
   if(event === "PASSWORD_RECOVERY"){
     authView.classList.remove("hidden");
     appView.classList.add("hidden");
@@ -625,6 +652,7 @@ supabaseClient.auth.onAuthStateChange(async(event,session)=>{
   if(event === "SIGNED_OUT"){
     showAuth();
   }
+
 });
 
 function showAuth(){
@@ -637,6 +665,7 @@ function showAuth(){
 ===================================== */
 
 async function openApp(){
+
   if(!currentUser) return;
 
   authView.classList.add("hidden");
@@ -654,6 +683,7 @@ async function openApp(){
 ===================================== */
 
 async function loadChats(){
+
   const {data,error} = await supabaseClient
     .from("chats")
     .select("*")
@@ -661,24 +691,34 @@ async function loadChats(){
     .order("created_at",{ascending:false});
 
   if(error){
+
     console.error("Chat history error:",error.message);
+
     historyList.innerHTML =
       '<div style="color:#91a3ba;padding:8px;font-size:12px">Unable to load chat history.</div>';
+
     return;
   }
 
   historyList.innerHTML = "";
 
   (data || []).forEach(chat=>{
+
     const button = document.createElement("button");
+
     button.className = "history-item";
     button.textContent = chat.title || "New chat";
+
     button.addEventListener("click",()=>openChat(chat.id));
+
     historyList.appendChild(button);
+
   });
+
 }
 
 async function createChat(title){
+
   const {data,error} = await supabaseClient
     .from("chats")
     .insert({
@@ -689,18 +729,24 @@ async function createChat(title){
     .single();
 
   if(error){
+
     console.error("Create chat error:",error.message);
+
     return null;
   }
 
   currentChatId = data.id;
+
   await loadChats();
+
   return data;
 }
 
 function startNewChat(){
+
   currentChatId = null;
   chatHistory = [];
+
   messagesBox.innerHTML = `
     <div id="welcome" class="welcome">
       <div class="welcome-mark">S</div>
@@ -708,12 +754,15 @@ function startNewChat(){
       <p>Ask me anything. Let's create something amazing.</p>
     </div>
   `;
+
   closeSidebar();
 }
 
 async function openChat(chatId){
+
   currentChatId = chatId;
   chatHistory = [];
+
   messagesBox.innerHTML = "";
 
   const {data,error} = await supabaseClient
@@ -724,17 +773,23 @@ async function openChat(chatId){
     .order("created_at",{ascending:true});
 
   if(error){
+
     console.error("Load messages error:",error.message);
+
     showTemporaryMessage("Unable to load this conversation.");
+
     return;
   }
 
   (data || []).forEach(row=>{
+
     const role = row.role === "assistant" ? "assistant" : "user";
     const content = row.content || row.message || "";
 
     chatHistory.push({role,text:content});
+
     renderMessage(role,content);
+
   });
 
   closeSidebar();
@@ -745,6 +800,7 @@ async function openChat(chatId){
 ===================================== */
 
 async function saveMessage(role,content){
+
   if(!currentChatId) return;
 
   const {error} = await supabaseClient
@@ -766,25 +822,34 @@ async function saveMessage(role,content){
 ===================================== */
 
 function renderMessage(role,text){
+
   const welcome = document.getElementById("welcome");
+
   if(welcome) welcome.remove();
 
   const wrapper = document.createElement("div");
+
   wrapper.className = "message " + role;
 
   if(role === "assistant"){
+
     const logo = document.createElement("div");
+
     logo.className = "assistant-logo";
     logo.textContent = "S";
+
     wrapper.appendChild(logo);
   }
 
   const bubble = document.createElement("div");
+
   bubble.className = "bubble";
-  bubble.textContent = text;
+  bubble.textContent = String(text);
 
   wrapper.appendChild(bubble);
+
   messagesBox.appendChild(wrapper);
+
   messagesBox.scrollTop = messagesBox.scrollHeight;
 }
 
@@ -797,70 +862,96 @@ function showTemporaryMessage(text){
 ===================================== */
 
 function showThinking(){
+
   const wrapper = document.createElement("div");
+
   wrapper.className = "message assistant";
   wrapper.id = "thinkingMessage";
 
   const thinking = document.createElement("div");
+
   thinking.className = "thinking";
 
   const symbol = document.createElement("div");
+
   symbol.className = "think-symbol";
   symbol.textContent = "S";
 
   const label = document.createElement("span");
+
   label.textContent = "STEVIE is thinking...";
 
   thinking.appendChild(symbol);
   thinking.appendChild(label);
+
   wrapper.appendChild(thinking);
 
   messagesBox.appendChild(wrapper);
+
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
   let showEight = false;
+
   const timer = setInterval(()=>{
+
     showEight = !showEight;
+
     symbol.textContent = showEight ? "8" : "S";
+
   },650);
 
   return ()=>{
+
     clearInterval(timer);
+
     wrapper.remove();
+
   };
 }
 
 /* =====================================
    SEND MESSAGE TO STEVIE
+   WITH CONNECTION DIAGNOSTICS
 ===================================== */
 
 sendBtn.addEventListener("click",sendMessage);
 
 promptInput.addEventListener("keydown",event=>{
+
   if(event.key === "Enter" && !event.shiftKey){
+
     event.preventDefault();
+
     sendMessage();
   }
+
 });
 
 promptInput.addEventListener("input",()=>{
+
   promptInput.style.height = "auto";
+
   promptInput.style.height =
     Math.min(promptInput.scrollHeight,180) + "px";
+
 });
 
 async function sendMessage(){
+
   const message = promptInput.value.trim();
 
   if(!message || isSending || !currentUser) return;
 
   isSending = true;
+
   sendBtn.disabled = true;
 
   promptInput.value = "";
+
   promptInput.style.height = "auto";
 
   if(!currentChatId){
+
     const title = message.length > 38
       ? message.substring(0,38) + "..."
       : message;
@@ -868,47 +959,98 @@ async function sendMessage(){
     const newChat = await createChat(title);
 
     if(!newChat){
+
       showTemporaryMessage(
         "I couldn't start a new chat. Please check your connection and try again."
       );
+
       isSending = false;
       sendBtn.disabled = false;
+
       return;
     }
   }
 
   renderMessage("user",message);
+
   chatHistory.push({role:"user",text:message});
+
   await saveMessage("user",message);
 
   const stopThinking = showThinking();
 
   try{
 
+    /* SEND REQUEST */
+
     const response = await fetch(BACKEND_URL,{
+
       method:"POST",
+
       headers:{
         "Content-Type":"text/plain;charset=utf-8"
       },
+
       body:JSON.stringify({
+
         message:message,
+
         mode:"chat",
+
         clientId:clientId,
+
         history:chatHistory.slice(-16)
+
       })
+
     });
 
+    /* READ RAW RESPONSE */
+
+    const rawResponse = await response.text();
+
+    console.log("HTTP STATUS:",response.status);
+
+    console.log("BACKEND RESPONSE:",rawResponse);
+
+    /* CHECK HTTP STATUS */
+
     if(!response.ok){
-      throw new Error("The server could not process your message.");
+
+      throw new Error(
+        "HTTP Error: " + response.status
+      );
+
     }
 
-    const result = await response.json();
+    /* PARSE JSON */
+
+    let result;
+
+    try{
+
+      result = JSON.parse(rawResponse);
+
+    }catch(parseError){
+
+      throw new Error(
+        "Backend did not return valid JSON: " +
+        rawResponse.substring(0,300)
+      );
+
+    }
+
+    /* CHECK BACKEND ERROR */
 
     if(result.error){
+
       throw new Error(
-        result.message || "STEVIE is temporarily unavailable."
+        result.message || "Backend returned an error."
       );
+
     }
+
+    /* GET AI ANSWER */
 
     const answer =
       result.reply ||
@@ -918,13 +1060,25 @@ async function sendMessage(){
       result.output;
 
     if(!answer){
-      throw new Error("STEVIE returned an empty response.");
+
+      throw new Error(
+        "Empty response. Received: " +
+        rawResponse.substring(0,300)
+      );
+
     }
+
+    /* DISPLAY ANSWER */
 
     stopThinking();
 
     renderMessage("assistant",answer);
-    chatHistory.push({role:"assistant",text:answer});
+
+    chatHistory.push({
+      role:"assistant",
+      text:answer
+    });
+
     await saveMessage("assistant",answer);
 
   }catch(error){
@@ -933,17 +1087,21 @@ async function sendMessage(){
 
     console.error("STEVIE request error:",error);
 
-    const friendly =
-      "I'm having trouble connecting right now. Please try again in a moment.";
-
-    renderMessage("assistant",friendly);
-    chatHistory.push({role:"assistant",text:friendly});
+    renderMessage(
+      "assistant",
+      "Connection diagnostic: " + error.message
+    );
 
   }finally{
+
     isSending = false;
+
     sendBtn.disabled = false;
+
     promptInput.focus();
+
   }
+
 }
 
 /* =====================================
@@ -951,17 +1109,27 @@ async function sendMessage(){
 ===================================== */
 
 function closeSidebar(){
-  document.getElementById("sidebar").classList.remove("open");
+
+  document.getElementById("sidebar")
+    .classList.remove("open");
+
 }
 
 document.getElementById("menuBtn").addEventListener("click",()=>{
-  document.getElementById("sidebar").classList.toggle("open");
+
+  document.getElementById("sidebar")
+    .classList.toggle("open");
+
 });
 
-document.getElementById("closeSide").addEventListener("click",closeSidebar);
+document.getElementById("closeSide")
+  .addEventListener("click",closeSidebar);
 
-document.getElementById("newChatBtn").addEventListener("click",startNewChat);
-document.getElementById("newTopBtn").addEventListener("click",startNewChat);
+document.getElementById("newChatBtn")
+  .addEventListener("click",startNewChat);
+
+document.getElementById("newTopBtn")
+  .addEventListener("click",startNewChat);
 
 /* =====================================
    START
@@ -970,5 +1138,6 @@ document.getElementById("newTopBtn").addEventListener("click",startNewChat);
 initializeApp();
 
 </script>
+
 </body>
 </html>
