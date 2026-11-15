@@ -538,7 +538,7 @@ button {
                 required
             >
 
-            <button class="primary-btn" id="authButton">
+            <button type="submit" class="primary-btn" id="authButton">
                 Login
             </button>
 
@@ -546,19 +546,17 @@ button {
 
         <div class="auth-links">
 
-            <button onclick="toggleAuth()"
-                    id="toggleAuthBtn">
+            <button type="button" onclick="toggleAuth()" id="toggleAuthBtn">
                 Create account
             </button>
 
-            <button onclick="forgotPassword()">
+            <button type="button" onclick="forgotPassword()">
                 Forgot password?
             </button>
 
         </div>
 
-        <p id="authMessage"
-           class="status"></p>
+        <p id="authMessage" class="status"></p>
 
     </div>
 
@@ -571,14 +569,11 @@ button {
 
 <div class="layout">
 
-    <!-- SIDEBAR -->
-
     <aside class="sidebar" id="sidebar">
 
         <div class="brand">STEVIE AI</div>
 
-        <button class="new-chat"
-                onclick="newChat()">
+        <button class="new-chat" onclick="newChat()">
             + New Chat
         </button>
 
@@ -590,13 +585,11 @@ button {
 
         <div class="user-profile">
 
-            <div class="profile-email"
-                 id="profileEmail">
+            <div class="profile-email" id="profileEmail">
                 User
             </div>
 
-            <button class="logout-btn"
-                    onclick="logout()">
+            <button class="logout-btn" onclick="logout()">
                 Logout
             </button>
 
@@ -604,17 +597,13 @@ button {
 
     </aside>
 
-
-    <!-- MAIN CONTENT -->
-
     <main class="main">
 
         <header class="topbar">
 
             <div class="top-left">
 
-                <button class="menu-btn"
-                        onclick="toggleSidebar()">
+                <button class="menu-btn" onclick="toggleSidebar()">
                     ☰
                 </button>
 
@@ -645,9 +634,6 @@ button {
 
         </header>
 
-
-        <!-- CHAT DISPLAY -->
-
         <section class="chat-area" id="chatArea">
 
             <div class="welcome" id="welcome">
@@ -665,35 +651,27 @@ button {
                 <div class="suggestions">
 
                     <button class="suggestion"
-                            onclick="useSuggestion('Help me develop a new business idea.')">
-
+                        onclick="useSuggestion('Help me develop a new business idea.')">
                         <strong>Business Ideas</strong>
                         <span>Develop your next big idea.</span>
-
                     </button>
 
                     <button class="suggestion"
-                            onclick="useSuggestion('Write a powerful song for me.')">
-
+                        onclick="useSuggestion('Write a powerful song for me.')">
                         <strong>Music Creation</strong>
                         <span>Create songs and lyrics.</span>
-
                     </button>
 
                     <button class="suggestion"
-                            onclick="useSuggestion('Help me build an Android application.')">
-
+                        onclick="useSuggestion('Help me build an Android application.')">
                         <strong>App Development</strong>
                         <span>Build something useful.</span>
-
                     </button>
 
                     <button class="suggestion"
-                            onclick="useSuggestion('Research the latest technology trends.')">
-
+                        onclick="useSuggestion('Research the latest technology trends.')">
                         <strong>Research</strong>
                         <span>Explore information and sources.</span>
-
                     </button>
 
                 </div>
@@ -702,13 +680,9 @@ button {
 
             <div id="messages"></div>
 
-            <div id="loadingStatus"
-                 class="status"></div>
+            <div id="loadingStatus" class="status"></div>
 
         </section>
-
-
-        <!-- INPUT -->
 
         <footer class="input-area">
 
@@ -720,9 +694,8 @@ button {
                     rows="1"
                 ></textarea>
 
-                <button class="send-btn"
-                        id="sendButton"
-                        onclick="sendMessage()">
+                <button class="send-btn" id="sendButton"
+                    onclick="sendMessage()">
                     ➤
                 </button>
 
@@ -755,7 +728,6 @@ const SUPABASE_KEY =
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxtKDjsn_KTi-Adx4e4Co0jyCmp5_gLQyc4VN7aJZ4IcJVlea_UzttFNzYVpozyQ5OD_g/exec";
 
-
 const supabaseClient =
 window.supabase.createClient(
     SUPABASE_URL,
@@ -772,6 +744,7 @@ let currentChatId = null;
 let conversation = [];
 let isSignup = false;
 let isSending = false;
+let userMemories = [];
 
 const clientId = getClientId();
 
@@ -781,7 +754,6 @@ function getClientId() {
     let id = localStorage.getItem("stevie_client_id");
 
     if (!id) {
-
         id = "stevie_" +
              Math.random().toString(36).substring(2) +
              Date.now();
@@ -806,6 +778,8 @@ function toggleAuth() {
 
     document.getElementById("toggleAuthBtn").textContent =
         isSignup ? "Already have an account?" : "Create account";
+
+    document.getElementById("authMessage").textContent = "";
 }
 
 
@@ -836,15 +810,15 @@ document.getElementById("authForm")
         if (isSignup) {
 
             result = await supabaseClient.auth.signUp({
-                email,
-                password
+                email: email,
+                password: password
             });
 
         } else {
 
             result = await supabaseClient.auth.signInWithPassword({
-                email,
-                password
+                email: email,
+                password: password
             });
 
         }
@@ -868,9 +842,11 @@ document.getElementById("authForm")
 
         message.textContent = error.message;
 
-    }
+    } finally {
 
-    button.disabled = false;
+        button.disabled = false;
+
+    }
 
 });
 
@@ -896,7 +872,6 @@ async function forgotPassword() {
     message.textContent = error
         ? error.message
         : "Password reset email sent.";
-
 }
 
 
@@ -907,6 +882,10 @@ async function logout() {
     currentUser = null;
     currentChatId = null;
     conversation = [];
+    userMemories = [];
+
+    document.getElementById("messages").innerHTML = "";
+    document.getElementById("chatList").innerHTML = "";
 
     document.getElementById("app").style.display = "none";
     document.getElementById("authScreen").style.display = "flex";
@@ -920,8 +899,13 @@ async function logout() {
 
 async function loadSession() {
 
-    const { data } =
+    const { data, error } =
         await supabaseClient.auth.getSession();
+
+    if (error) {
+        console.error(error);
+        return;
+    }
 
     if (data.session) {
         await showApp(data.session.user);
@@ -931,37 +915,149 @@ async function loadSession() {
 
 
 supabaseClient.auth.onAuthStateChange(
-    async function(event, session) {
+    function(event, session) {
 
-        if (session && !currentUser) {
-            await showApp(session.user);
-        }
+        setTimeout(async function() {
 
-        if (!session && currentUser) {
+            if (session) {
 
-            currentUser = null;
+                if (
+                    !currentUser ||
+                    currentUser.id !== session.user.id
+                ) {
+                    await showApp(session.user);
+                }
 
-            document.getElementById("app").style.display = "none";
-            document.getElementById("authScreen").style.display = "flex";
+            } else {
 
-        }
+                currentUser = null;
+                currentChatId = null;
+                conversation = [];
+                userMemories = [];
+
+                document.getElementById("messages").innerHTML = "";
+                document.getElementById("chatList").innerHTML = "";
+
+                document.getElementById("app").style.display = "none";
+                document.getElementById("authScreen").style.display = "flex";
+
+            }
+
+        }, 0);
 
     }
 );
 
+
+/* =================================
+   STEVIE AI MEMORY SYSTEM
+================================= */
+
+async function loadMemories() {
+
+    if (!currentUser) return [];
+
+    const userId = currentUser.id;
+
+    const { data, error } = await supabaseClient
+        .from("memories")
+        .select("id, content, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Memory loading error:", error);
+        return [];
+    }
+
+    if (!currentUser || currentUser.id !== userId) return [];
+
+    userMemories = data || [];
+
+    return userMemories;
+}
+
+
+async function saveMemory(content) {
+
+    if (!currentUser) {
+        throw new Error("Please login first.");
+    }
+
+    const cleanContent = content.trim();
+
+    if (!cleanContent) return;
+
+    const userId = currentUser.id;
+
+    const { data, error } = await supabaseClient
+        .from("memories")
+        .insert({
+            user_id: userId,
+            content: cleanContent
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Memory saving error:", error);
+        throw error;
+    }
+
+    if (currentUser && currentUser.id === userId) {
+        userMemories.unshift(data);
+    }
+
+    return data;
+}
+
+
+async function deleteMemory(memoryId) {
+
+    if (!currentUser) return;
+
+    const userId = currentUser.id;
+
+    const { error } = await supabaseClient
+        .from("memories")
+        .delete()
+        .eq("id", memoryId)
+        .eq("user_id", userId);
+
+    if (error) {
+        console.error("Memory deletion error:", error);
+        throw error;
+    }
+
+    if (currentUser && currentUser.id === userId) {
+        userMemories = userMemories.filter(
+            memory => memory.id !== memoryId
+        );
+    }
+
+}
+
+
+/* =================================
+   SHOW APPLICATION
+================================= */
 
 async function showApp(user) {
 
     if (!user) return;
 
     currentUser = user;
+    currentChatId = null;
+    conversation = [];
+    userMemories = [];
 
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
 
     document.getElementById("profileEmail").textContent =
-        user.email;
+        user.email || "User";
 
+    await loadMemories();
     await loadChats();
 
 }
@@ -975,24 +1071,27 @@ async function loadChats() {
 
     if (!currentUser) return;
 
+    const userId = currentUser.id;
+
     const { data, error } =
         await supabaseClient
         .from("chats")
         .select("*")
-        .eq("user_id", currentUser.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
     if (error) {
-        console.error(error);
+        console.error("Chat loading error:", error);
         return;
     }
 
-    const list =
-        document.getElementById("chatList");
+    if (!currentUser || currentUser.id !== userId) return;
+
+    const list = document.getElementById("chatList");
 
     list.innerHTML = "";
 
-    (data || []).forEach(chat => {
+    (data || []).forEach(function(chat) {
 
         const item = document.createElement("div");
 
@@ -1002,7 +1101,9 @@ async function loadChats() {
 
         item.textContent = chat.title || "New Chat";
 
-        item.onclick = () => openChat(chat.id);
+        item.onclick = function() {
+            openChat(chat.id);
+        };
 
         list.appendChild(item);
 
@@ -1017,9 +1118,7 @@ async function newChat() {
     conversation = [];
 
     document.getElementById("messages").innerHTML = "";
-
     document.getElementById("welcome").style.display = "block";
-
     document.getElementById("loadingStatus").textContent = "";
 
     await loadChats();
@@ -1032,6 +1131,10 @@ async function newChat() {
 
 
 async function createChat(title) {
+
+    if (!currentUser) {
+        throw new Error("User session unavailable.");
+    }
 
     const { data, error } =
         await supabaseClient
@@ -1056,27 +1159,54 @@ async function createChat(title) {
 
 async function openChat(chatId) {
 
-    currentChatId = chatId;
+    if (!currentUser || !chatId) return;
 
+    const activeUserId = currentUser.id;
+
+    currentChatId = null;
     conversation = [];
 
     document.getElementById("messages").innerHTML = "";
-
     document.getElementById("welcome").style.display = "none";
+
+    const { data: chat, error: chatError } =
+        await supabaseClient
+        .from("chats")
+        .select("id")
+        .eq("id", chatId)
+        .eq("user_id", activeUserId)
+        .maybeSingle();
+
+    if (chatError || !chat) {
+
+        alert("Chat not found or access denied.");
+
+        document.getElementById("welcome").style.display = "block";
+
+        return;
+    }
+
+    if (!currentUser || currentUser.id !== activeUserId) return;
+
+    currentChatId = chatId;
 
     const { data: messages, error } =
         await supabaseClient
         .from("messages")
         .select("*")
         .eq("chat_id", chatId)
+        .eq("user_id", activeUserId)
         .order("created_at", { ascending: true });
 
     if (error) {
+        console.error(error);
         alert(error.message);
         return;
     }
 
-    (messages || []).forEach(msg => {
+    if (!currentUser || currentUser.id !== activeUserId) return;
+
+    (messages || []).forEach(function(msg) {
 
         conversation.push({
             role: msg.role,
@@ -1099,19 +1229,22 @@ async function openChat(chatId) {
 
 async function saveMessage(role, content) {
 
-    if (!currentChatId) return;
+    if (!currentUser || !currentChatId) {
+        throw new Error("User or chat session is missing.");
+    }
 
-    const { error } =
-        await supabaseClient
+    const { error } = await supabaseClient
         .from("messages")
         .insert({
             chat_id: currentChatId,
+            user_id: currentUser.id,
             role: role,
             content: content
         });
 
     if (error) {
         console.error("Message save error:", error);
+        throw error;
     }
 
 }
@@ -1125,8 +1258,7 @@ function addMessage(role, content, sources, engine) {
 
     document.getElementById("welcome").style.display = "none";
 
-    const messages =
-        document.getElementById("messages");
+    const messages = document.getElementById("messages");
 
     const row = document.createElement("div");
 
@@ -1149,18 +1281,16 @@ function addMessage(role, content, sources, engine) {
         const sourceBox = document.createElement("div");
 
         sourceBox.className = "sources";
-
         sourceBox.innerHTML = "<strong>Sources:</strong>";
 
-        sources.forEach(source => {
+        sources.forEach(function(source) {
 
             const link = document.createElement("a");
 
             link.href = source.url;
             link.target = "_blank";
             link.rel = "noopener noreferrer";
-            link.textContent =
-                source.title || source.url;
+            link.textContent = source.title || source.url;
 
             sourceBox.appendChild(link);
 
@@ -1175,9 +1305,7 @@ function addMessage(role, content, sources, engine) {
         const label = document.createElement("div");
 
         label.className = "engine-label";
-
-        label.textContent =
-            "Powered by " + engine;
+        label.textContent = "Powered by " + engine;
 
         bubble.appendChild(label);
 
@@ -1187,8 +1315,6 @@ function addMessage(role, content, sources, engine) {
 
 }
 
-
-/* Basic text formatting */
 
 function escapeHTML(text) {
 
@@ -1226,10 +1352,7 @@ function formatMessage(text) {
         "<strong>$1</strong>"
     );
 
-    safe = safe.replace(
-        /\n/g,
-        "<br>"
-    );
+    safe = safe.replace(/\n/g, "<br>");
 
     return safe;
 
@@ -1244,21 +1367,15 @@ async function sendMessage() {
 
     if (isSending || !currentUser) return;
 
-    const input =
-        document.getElementById("messageInput");
+    const input = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+    const status = document.getElementById("loadingStatus");
 
     const text = input.value.trim();
 
     if (!text) return;
 
     isSending = true;
-
-    const sendButton =
-        document.getElementById("sendButton");
-
-    const status =
-        document.getElementById("loadingStatus");
-
     sendButton.disabled = true;
 
     input.value = "";
@@ -1281,53 +1398,53 @@ async function sendMessage() {
 
         await saveMessage("user", text);
 
-        const mode =
-            document.getElementById("modeSelect").value;
+        const mode = document.getElementById("modeSelect").value;
+        const engine = document.getElementById("engineSelect").value;
+        const history = conversation.slice(-13, -1);
 
-        const engine =
-            document.getElementById("engineSelect").value;
+        const { data: sessionData } =
+            await supabaseClient.auth.getSession();
 
-        const history =
-            conversation.slice(-13, -1);
+        const accessToken =
+            sessionData.session
+                ? sessionData.session.access_token
+                : "";
 
-        const response =
-            await fetch(API_URL, {
+        const response = await fetch(API_URL, {
 
-                method: "POST",
+            method: "POST",
 
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
 
-                body: JSON.stringify({
+            body: JSON.stringify({
 
-                    message: text,
+                message: text,
+                mode: mode,
+                engine: engine,
+                clientId: clientId,
+                history: history,
+                accessToken: accessToken
 
-                    mode: mode,
+            })
 
-                    engine: engine,
+        });
 
-                    clientId: clientId,
-
-                    history: history
-
-                })
-
-            });
-
+        if (!response.ok) {
+            throw new Error("Server error: " + response.status);
+        }
 
         const result = await response.json();
 
         if (!result.success) {
-
             throw new Error(
                 result.error || "STEVIE could not complete your request."
             );
-
         }
 
         const reply =
-            result.reply || "No response received.";
+            result.response || result.reply || "No response received.";
 
         conversation.push({
             role: "assistant",
@@ -1343,40 +1460,65 @@ async function sendMessage() {
 
         await saveMessage("assistant", reply);
 
-        if (result.searchWarning) {
-
-            status.textContent =
-                "Notice: " + result.searchWarning;
-
-        } else {
-
-            status.textContent = "";
-
-        }
+        status.textContent = "";
 
         await loadChats();
 
     } catch(error) {
 
-        console.error(error);
+        console.error("STEVIE Error:", error);
 
-        const errorText =
-            "Sorry, something went wrong: " + error.message;
-
-        addMessage("assistant", errorText);
+        addMessage(
+            "assistant",
+            "Sorry, something went wrong: " + error.message
+        );
 
         status.textContent = "Request failed.";
 
+    } finally {
+
+        isSending = false;
+        sendButton.disabled = false;
+        input.focus();
+
+        document.getElementById("chatArea").scrollTop =
+            document.getElementById("chatArea").scrollHeight;
+
     }
 
-    isSending = false;
+}
 
-    sendButton.disabled = false;
 
-    input.focus();
+/* =================================
+   ACCOUNT ISOLATION TEST
+================================= */
 
-    document.getElementById("chatArea").scrollTop =
-        document.getElementById("chatArea").scrollHeight;
+async function testAccountIsolation() {
+
+    const accountAChatId =
+        "9fa6bc3a-2c2e-4438-ab6f-71d8fb8d3a4c";
+
+    if (!currentUser) {
+        alert("Please login first.");
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("chats")
+        .select("id, title")
+        .eq("id", accountAChatId)
+        .maybeSingle();
+
+    if (error) {
+        alert("Security test error: " + error.message);
+        return;
+    }
+
+    if (data === null) {
+        alert("PASS: This account cannot access the other account's chat.");
+    } else {
+        alert("FAIL: Chat access was not blocked!");
+    }
 
 }
 
